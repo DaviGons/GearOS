@@ -26,6 +26,7 @@ type PatchBody = {
   status?: Status;
   observacoes?: string;
   avarias?: string | null;
+  fotos?: string[];
 };
 
 export async function PATCH(
@@ -40,6 +41,7 @@ export async function PATCH(
   if (body.status !== undefined) update.status = body.status;
   if (body.observacoes !== undefined) update.observacoes = body.observacoes.trim();
   if (body.avarias !== undefined) update.avarias = body.avarias;
+  if (body.fotos !== undefined) update.fotos = body.fotos;
 
   if (Object.keys(update).length === 0) {
     return NextResponse.json({ error: "Nada para atualizar." }, { status: 400 });

@@ -23,16 +23,26 @@ export default async function ChecklistPage({
 
   const checklist = row as Checklist;
 
+  let fotoUrls: string[] = [];
+  if (checklist.fotos.length > 0) {
+    const { data: signed } = await supabase.storage
+      .from("checklist-fotos")
+      .createSignedUrls(checklist.fotos, 3600);
+    fotoUrls = (signed ?? [])
+      .map((s) => s.signedUrl)
+      .filter((url): url is string => Boolean(url));
+  }
+
   return (
     <main className="flex-1 mx-auto w-full max-w-3xl px-4 py-8 print:py-0 print:max-w-full">
       <div className="mb-6 flex items-center justify-between print:hidden">
-        <Link href="/" className="text-sm text-slate-500 hover:text-slate-700">
+        <Link href="/" className="text-sm text-muted hover:text-foreground">
           ← Voltar
         </Link>
         <PrintButton />
       </div>
 
-      <ChecklistEditor checklist={checklist} />
+      <ChecklistEditor checklist={checklist} fotoUrls={fotoUrls} />
     </main>
   );
 }

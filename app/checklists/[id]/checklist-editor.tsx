@@ -3,14 +3,15 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Checklist, STATUS_LABEL, Status, TIPO_COMBUSTIVEL_LABEL } from "@/lib/types";
+import { STATUS_BADGE_CLASS } from "@/lib/status-style";
 
-const STATUS_STYLE: Record<Status, string> = {
-  aberta: "bg-amber-100 text-amber-800 border-amber-200",
-  em_andamento: "bg-blue-100 text-blue-800 border-blue-200",
-  concluida: "bg-green-100 text-green-800 border-green-200",
-};
-
-export default function ChecklistEditor({ checklist }: { checklist: Checklist }) {
+export default function ChecklistEditor({
+  checklist,
+  fotoUrls,
+}: {
+  checklist: Checklist;
+  fotoUrls: string[];
+}) {
   const router = useRouter();
 
   const [status, setStatus] = useState<Status>(checklist.status);
@@ -57,13 +58,13 @@ export default function ChecklistEditor({ checklist }: { checklist: Checklist })
   }
 
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm print:border-0 print:shadow-none print:p-0">
-      <header className="mb-6 flex items-start justify-between border-b border-slate-200 pb-4">
+    <div className="animate-fade-in rounded-lg border border-border bg-surface p-6 shadow-sm print:border-0 print:shadow-none print:p-0">
+      <header className="mb-6 flex items-start justify-between border-b border-border pb-4">
         <div>
-          <h1 className="text-xl font-bold text-slate-900">Ordem de Serviço</h1>
-          <p className="text-sm text-slate-500">GearOS — Oficina Mecânica</p>
+          <h1 className="text-xl font-bold text-foreground">Ordem de Serviço</h1>
+          <p className="text-sm text-muted">GearOS — Oficina Mecânica</p>
         </div>
-        <div className="text-right text-xs text-slate-500">
+        <div className="text-right text-xs text-muted">
           <p>#{checklist.id}</p>
           <p>Aberta em {new Date(checklist.criado_em).toLocaleString("pt-BR")}</p>
           {checklist.atendente && <p>Atendente: {checklist.atendente}</p>}
@@ -71,15 +72,17 @@ export default function ChecklistEditor({ checklist }: { checklist: Checklist })
       </header>
 
       <div className="mb-6 flex flex-wrap items-center gap-2 print:hidden">
-        <span className="text-xs font-medium text-slate-500 mr-1">Status:</span>
+        <span className="text-xs font-medium text-muted mr-1">Status:</span>
         {(Object.keys(STATUS_LABEL) as Status[]).map((s) => (
           <button
             key={s}
             type="button"
             onClick={() => handleStatusChange(s)}
             disabled={saving}
-            className={`rounded-full border px-3 py-1 text-xs font-medium transition ${
-              status === s ? STATUS_STYLE[s] : "border-slate-200 text-slate-500 hover:bg-slate-50"
+            className={`rounded-full border px-3 py-1 text-xs font-medium ${
+              status === s
+                ? STATUS_BADGE_CLASS[s]
+                : "border-border text-muted hover:bg-surface-hover hover:text-foreground"
             }`}
           >
             {STATUS_LABEL[s]}
@@ -88,7 +91,7 @@ export default function ChecklistEditor({ checklist }: { checklist: Checklist })
       </div>
 
       <span
-        className={`hidden print:inline-block mb-4 rounded-full border px-3 py-1 text-xs font-medium ${STATUS_STYLE[status]}`}
+        className={`hidden print:inline-block mb-4 rounded-full border px-3 py-1 text-xs font-medium ${STATUS_BADGE_CLASS[status]}`}
       >
         {STATUS_LABEL[status]}
       </span>
@@ -120,31 +123,51 @@ export default function ChecklistEditor({ checklist }: { checklist: Checklist })
         />
       </Grid>
 
+      {fotoUrls.length > 0 && (
+        <section className="mb-5">
+          <h2 className="mb-2 text-sm font-semibold text-foreground">Fotos do veículo</h2>
+          <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+            {fotoUrls.map((url, i) => (
+              <a
+                key={i}
+                href={url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block aspect-square overflow-hidden rounded-lg border border-border hover:border-accent"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={url} alt={`Foto ${i + 1} do veículo`} className="h-full w-full object-cover" />
+              </a>
+            ))}
+          </div>
+        </section>
+      )}
+
       <section className="mb-5">
-        <h2 className="mb-1 text-sm font-semibold text-slate-700">Avarias / riscos visíveis</h2>
+        <h2 className="mb-1 text-sm font-semibold text-foreground">Avarias / riscos visíveis</h2>
         <textarea
           value={avarias}
           onChange={(e) => setAvarias(e.target.value)}
           rows={2}
           placeholder="Nenhuma avaria registrada"
-          className="w-full whitespace-pre-wrap rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700 focus:border-blue-500 focus:outline-none print:border-0"
+          className="w-full whitespace-pre-wrap rounded-lg border border-border bg-background p-3 text-sm text-foreground focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 print:border-0 print:bg-transparent"
         />
       </section>
 
       <section>
-        <h2 className="mb-1 text-sm font-semibold text-slate-700">O que precisa ser feito</h2>
+        <h2 className="mb-1 text-sm font-semibold text-foreground">O que precisa ser feito</h2>
         <textarea
           value={observacoes}
           onChange={(e) => setObservacoes(e.target.value)}
           rows={4}
-          className="w-full whitespace-pre-wrap rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700 focus:border-blue-500 focus:outline-none print:border-0"
+          className="w-full whitespace-pre-wrap rounded-lg border border-border bg-background p-3 text-sm text-foreground focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 print:border-0 print:bg-transparent"
         />
       </section>
 
       <div className="mt-4 flex items-center justify-between print:hidden">
-        <p className="text-xs text-slate-400">
+        <p className="text-xs text-muted">
           {error ? (
-            <span className="text-red-600">{error}</span>
+            <span className="text-danger">{error}</span>
           ) : saving ? (
             "Salvando..."
           ) : savedAt ? (
@@ -157,15 +180,15 @@ export default function ChecklistEditor({ checklist }: { checklist: Checklist })
           type="button"
           onClick={() => save()}
           disabled={!dirty || saving}
-          className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700 disabled:opacity-40"
+          className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm hover:bg-primary-hover hover:shadow-md disabled:opacity-40 disabled:shadow-none"
         >
           Salvar alterações
         </button>
       </div>
 
-      <footer className="mt-10 grid grid-cols-2 gap-8 text-xs text-slate-500">
-        <div className="border-t border-slate-300 pt-2">Assinatura do cliente</div>
-        <div className="border-t border-slate-300 pt-2">Assinatura do atendente</div>
+      <footer className="mt-10 grid grid-cols-2 gap-8 text-xs text-muted">
+        <div className="border-t border-border pt-2">Assinatura do cliente</div>
+        <div className="border-t border-border pt-2">Assinatura do atendente</div>
       </footer>
     </div>
   );
@@ -174,7 +197,7 @@ export default function ChecklistEditor({ checklist }: { checklist: Checklist })
 function Grid({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="mb-5">
-      <h2 className="mb-2 text-sm font-semibold text-slate-700">{title}</h2>
+      <h2 className="mb-2 text-sm font-semibold text-foreground">{title}</h2>
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">{children}</div>
     </section>
   );
@@ -183,8 +206,8 @@ function Grid({ title, children }: { title: string; children: React.ReactNode })
 function Info({ label, value }: { label: string; value: string | null }) {
   return (
     <div>
-      <p className="text-[11px] uppercase tracking-wide text-slate-400">{label}</p>
-      <p className="text-sm text-slate-800">{value || "—"}</p>
+      <p className="text-[11px] uppercase tracking-wide text-muted/70">{label}</p>
+      <p className="text-sm text-foreground">{value || "—"}</p>
     </div>
   );
 }

@@ -1,9 +1,12 @@
-export type Status = "aberta" | "em_andamento" | "concluida";
+export type Status = "recebido" | "em_andamento" | "finalizado" | "entregue";
+
+export const STATUS_ORDER: Status[] = ["recebido", "em_andamento", "finalizado", "entregue"];
 
 export const STATUS_LABEL: Record<Status, string> = {
-  aberta: "Aberta",
+  recebido: "Recebido",
   em_andamento: "Em andamento",
-  concluida: "Concluída",
+  finalizado: "Finalizado",
+  entregue: "Entregue",
 };
 
 export type TipoCombustivel = "diesel" | "alcool" | "gasolina";
@@ -37,6 +40,7 @@ export type Checklist = {
   veiculo_combustivel: string | null;
   veiculo_tipo_combustivel: TipoCombustivel | null;
 
+  fotos: string[];
   avarias: string | null;
   observacoes: string;
 };

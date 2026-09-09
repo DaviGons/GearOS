@@ -1,13 +1,39 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { createClient } from "@/lib/supabase/client";
+
+const MAX_FOTOS = 8;
+const MAX_TAMANHO_MB = 10;
 
 export default function NovoChecklistPage() {
   const router = useRouter();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [fotos, setFotos] = useState<File[]>([]);
   const [saving, setSaving] = useState(false);
+  const [uploadStatus, setUploadStatus] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  function handleFilesSelected(e: React.ChangeEvent<HTMLInputElement>) {
+    const selecionados = Array.from(e.target.files ?? []);
+    if (selecionados.length === 0) return;
+
+    const grandeDemais = selecionados.find((f) => f.size > MAX_TAMANHO_MB * 1024 * 1024);
+    if (grandeDemais) {
+      setError(`"${grandeDemais.name}" passa de ${MAX_TAMANHO_MB}MB.`);
+    } else {
+      setError(null);
+    }
+
+    setFotos((prev) => [...prev, ...selecionados].slice(0, MAX_FOTOS));
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  }
+
+  function removeFoto(index: number) {
+    setFotos((prev) => prev.filter((_, i) => i !== index));
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -55,28 +81,55 @@ export default function NovoChecklistPage() {
       }
 
       const data = await res.json();
+
+      if (fotos.length > 0) {
+        setUploadStatus(`Enviando fotos (0/${fotos.length})...`);
+        const supabase = createClient();
+        const caminhos: string[] = [];
+
+        for (let i = 0; i < fotos.length; i++) {
+          const file = fotos[i];
+          const caminho = `${data.id}/${crypto.randomUUID()}-${file.name}`;
+          const { error: uploadError } = await supabase.storage
+            .from("checklist-fotos")
+            .upload(caminho, file);
+
+          if (!uploadError) caminhos.push(caminho);
+          setUploadStatus(`Enviando fotos (${i + 1}/${fotos.length})...`);
+        }
+
+        if (caminhos.length > 0) {
+          await fetch(`/api/checklists/${data.id}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ fotos: caminhos }),
+          });
+        }
+      }
+
       router.push(`/checklists/${data.id}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erro ao salvar checklist.");
       setSaving(false);
+      setUploadStatus(null);
     }
   }
 
   return (
-    <main className="flex-1 mx-auto w-full max-w-3xl px-4 py-8">
+    <main className="animate-fade-in flex-1 mx-auto w-full max-w-3xl px-4 py-8">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Cadastrar Entrada</h1>
-          <p className="text-sm text-slate-500">Preencha os dados na recepção do veículo</p>
+          <h1 className="text-2xl font-bold text-foreground">Cadastrar Entrada</h1>
+          <p className="text-sm text-muted">Preencha os dados na recepção do veículo</p>
         </div>
-        <Link href="/" className="text-sm text-slate-500 hover:text-slate-700">
+        <Link href="/" className="text-sm text-muted hover:text-foreground">
           ← Voltar
         </Link>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {error && (
-          <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          <div className="rounded-lg border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger">
             {error}
           </div>
         )}
@@ -134,7 +187,7 @@ export default function NovoChecklistPage() {
               <select
                 name="veiculo_combustivel"
                 defaultValue=""
-                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
               >
                 <option value="">—</option>
                 <option value="Reserva">Reserva</option>
@@ -148,7 +201,7 @@ export default function NovoChecklistPage() {
               <select
                 name="veiculo_tipo_combustivel"
                 defaultValue=""
-                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
               >
                 <option value="">—</option>
                 <option value="diesel">Diesel</option>
@@ -159,12 +212,57 @@ export default function NovoChecklistPage() {
           </div>
         </Section>
 
+        <Section title="Fotos do veículo (opcional)">
+          <p className="mb-3 text-xs text-muted">
+            Registre o estado atual do veículo — ajuda a evitar contestações do cliente depois.
+            Até {MAX_FOTOS} fotos, {MAX_TAMANHO_MB}MB cada.
+          </p>
+
+          {fotos.length > 0 && (
+            <div className="mb-3 grid grid-cols-3 sm:grid-cols-4 gap-2">
+              {fotos.map((file, i) => (
+                <div key={i} className="group relative aspect-square overflow-hidden rounded-lg border border-border">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={URL.createObjectURL(file)}
+                    alt={file.name}
+                    className="h-full w-full object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeFoto(i)}
+                    className="absolute top-1 right-1 flex h-6 w-6 items-center justify-center rounded-full bg-background/80 text-foreground opacity-0 group-hover:opacity-100"
+                    aria-label={`Remover ${file.name}`}
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {fotos.length < MAX_FOTOS && (
+            <label className="flex cursor-pointer items-center justify-center rounded-lg border border-dashed border-border px-4 py-3 text-sm text-muted hover:border-accent hover:text-accent">
+              + Adicionar fotos
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                multiple
+                capture="environment"
+                onChange={handleFilesSelected}
+                className="hidden"
+              />
+            </label>
+          )}
+        </Section>
+
         <Section title="Avarias / riscos visíveis">
           <textarea
             name="avarias"
             rows={2}
             placeholder="Ex: risco na porta traseira esquerda, para-choque amassado..."
-            className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
           />
         </Section>
 
@@ -174,21 +272,22 @@ export default function NovoChecklistPage() {
             required
             rows={4}
             placeholder="Descreva o serviço solicitado pelo cliente..."
-            className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
           />
         </Section>
 
-        <div className="flex justify-end gap-3">
+        <div className="flex items-center justify-end gap-3">
+          {uploadStatus && <p className="text-xs text-muted">{uploadStatus}</p>}
           <Link
             href="/"
-            className="rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+            className="rounded-lg border border-border bg-surface px-4 py-2.5 text-sm font-medium text-foreground hover:bg-surface-hover"
           >
             Cancelar
           </Link>
           <button
             type="submit"
             disabled={saving}
-            className="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow hover:bg-blue-700 disabled:opacity-50"
+            className="rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm hover:bg-primary-hover hover:shadow-md disabled:opacity-50"
           >
             {saving ? "Salvando..." : "Salvar checklist"}
           </button>
@@ -200,8 +299,8 @@ export default function NovoChecklistPage() {
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-      <h2 className="mb-3 text-sm font-semibold text-slate-700">{title}</h2>
+    <section className="rounded-lg border border-border bg-surface p-4 shadow-sm">
+      <h2 className="mb-3 text-sm font-semibold text-foreground">{title}</h2>
       {children}
     </section>
   );
@@ -210,7 +309,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-xs font-medium text-slate-600">{label}</span>
+      <span className="mb-1 block text-xs font-medium text-muted">{label}</span>
       {children}
     </label>
   );
@@ -220,7 +319,7 @@ function Input(props: React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <input
       {...props}
-      className={`w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none ${props.className ?? ""}`}
+      className={`w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 ${props.className ?? ""}`}
     />
   );
 }
