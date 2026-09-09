@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { Checklist, STATUS_LABEL, STATUS_ORDER, Status } from "@/lib/types";
-import { STATUS_COLUMN_ACCENT } from "@/lib/status-style";
+import { Checklist } from "@/lib/types";
 import LogoutButton from "./logout-button";
+import Board from "./board";
 
 export default async function HomePage({
   searchParams,
@@ -21,16 +21,6 @@ export default async function HomePage({
   }
   const { data } = await dbQuery;
   const rows = (data ?? []) as Checklist[];
-
-  const colunas: Record<Status, Checklist[]> = {
-    recebido: [],
-    em_andamento: [],
-    finalizado: [],
-    entregue: [],
-  };
-  for (const row of rows) {
-    colunas[row.status]?.push(row);
-  }
 
   return (
     <main className="animate-fade-in flex-1 mx-auto w-full max-w-[1400px] px-4 py-8 flex flex-col min-h-0">
@@ -65,62 +55,8 @@ export default async function HomePage({
           {query ? "Nenhuma O.S. encontrada para essa busca." : "Nenhuma O.S. cadastrada ainda."}
         </p>
       ) : (
-        <div className="flex-1 overflow-x-auto pb-2">
-          <div className="flex gap-4 min-w-max h-full">
-            {STATUS_ORDER.map((status) => (
-              <Column key={status} status={status} rows={colunas[status]} />
-            ))}
-          </div>
-        </div>
+        <Board rows={rows} />
       )}
     </main>
-  );
-}
-
-function Column({ status, rows }: { status: Status; rows: Checklist[] }) {
-  return (
-    <section
-      className={`w-[280px] sm:w-[300px] flex-shrink-0 flex flex-col rounded-lg border border-border border-t-2 bg-surface/60 ${STATUS_COLUMN_ACCENT[status]}`}
-    >
-      <header className="flex items-center justify-between px-3 py-3 border-b border-border">
-        <h2 className="text-sm font-semibold text-foreground">{STATUS_LABEL[status]}</h2>
-        <span className="rounded-full bg-background px-2 py-0.5 text-xs font-medium text-muted">
-          {rows.length}
-        </span>
-      </header>
-
-      <div className="flex flex-col gap-2 p-2.5 overflow-y-auto">
-        {rows.length === 0 ? (
-          <p className="px-2 py-6 text-center text-xs text-muted/70">Nenhuma O.S. aqui</p>
-        ) : (
-          rows.map((row) => <Card key={row.id} row={row} />)
-        )}
-      </div>
-    </section>
-  );
-}
-
-function Card({ row }: { row: Checklist }) {
-  return (
-    <Link
-      href={`/checklists/${row.id}`}
-      className="block rounded-lg border border-border bg-surface p-3 hover:border-accent/50 hover:bg-surface-hover"
-    >
-      <div className="mb-1.5 flex items-start justify-between gap-2">
-        <p className="text-sm font-medium text-foreground leading-tight">{row.cliente_nome}</p>
-        <span className="text-[11px] font-mono text-muted/60 shrink-0">#{row.id}</span>
-      </div>
-      <p className="text-xs text-muted">
-        {row.veiculo_marca} {row.veiculo_modelo}
-      </p>
-      <div className="mt-2 flex items-center justify-between gap-2">
-        <span className="rounded bg-background px-1.5 py-0.5 text-[11px] font-mono text-muted">
-          {row.veiculo_placa}
-        </span>
-        <span className="text-[11px] text-muted/70">
-          {new Date(row.criado_em).toLocaleDateString("pt-BR")}
-        </span>
-      </div>
-    </Link>
   );
 }
