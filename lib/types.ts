@@ -27,6 +27,7 @@ export type Checklist = {
   cliente_nome: string;
   cliente_telefone: string | null;
   cliente_cpf: string | null;
+  cliente_endereco: string | null;
   cliente_cep: string | null;
   cliente_numero: string | null;
   cliente_complemento: string | null;
@@ -51,6 +52,7 @@ export type ChecklistInput = {
   cliente_nome: string;
   cliente_telefone?: string;
   cliente_cpf?: string;
+  cliente_endereco?: string;
   cliente_cep?: string;
   cliente_numero?: string;
   cliente_complemento?: string;

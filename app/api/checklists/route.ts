@@ -42,6 +42,7 @@ export async function POST(request: NextRequest) {
       cliente_nome: body.cliente_nome.trim(),
       cliente_telefone: body.cliente_telefone ?? null,
       cliente_cpf: body.cliente_cpf ?? null,
+      cliente_endereco: body.cliente_endereco ?? null,
       cliente_cep: body.cliente_cep ?? null,
       cliente_numero: body.cliente_numero ?? null,
       cliente_complemento: body.cliente_complemento ?? null,

@@ -16,6 +16,7 @@ create table if not exists public.checklists (
   cliente_nome text not null,
   cliente_telefone text,
   cliente_cpf text,
+  cliente_endereco text,
   cliente_cep text,
   cliente_numero text,
   cliente_complemento text,

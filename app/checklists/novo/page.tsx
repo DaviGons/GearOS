@@ -59,6 +59,7 @@ export default function NovoChecklistPage() {
           cliente_nome,
           cliente_telefone: form.get("cliente_telefone") || undefined,
           cliente_cpf: form.get("cliente_cpf") || undefined,
+          cliente_endereco: form.get("cliente_endereco") || undefined,
           cliente_cep: form.get("cliente_cep") || undefined,
           cliente_numero: form.get("cliente_numero") || undefined,
           cliente_complemento: form.get("cliente_complemento") || undefined,
@@ -150,6 +151,9 @@ export default function NovoChecklistPage() {
             </Field>
             <Field label="CPF">
               <Input name="cliente_cpf" placeholder="000.000.000-00" />
+            </Field>
+            <Field label="Endereço (rua)">
+              <Input name="cliente_endereco" placeholder="Rua, avenida..." />
             </Field>
             <Field label="CEP">
               <Input name="cliente_cep" placeholder="00000-000" />

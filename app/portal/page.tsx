@@ -3,7 +3,9 @@ import { redirect } from "next/navigation";
 import { PORTAL_COOKIE_NAME, verifyPortalToken } from "@/lib/portal-session";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { Checklist, STATUS_LABEL, STATUS_ORDER, TIPO_COMBUSTIVEL_LABEL } from "@/lib/types";
+import { cadastroClienteCompleto } from "@/lib/validation";
 import PortalLogoutButton from "./logout-button";
+import CadastroForm from "./cadastro-form";
 
 export default async function PortalPage() {
   const cookieStore = await cookies();
@@ -21,6 +23,21 @@ export default async function PortalPage() {
   if (!row) redirect("/login?portal=1");
 
   const checklist = row as Checklist;
+
+  if (!cadastroClienteCompleto(checklist)) {
+    return (
+      <main className="flex-1 mx-auto w-full max-w-2xl px-4 py-8">
+        <header className="mb-6 flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">GearOS</h1>
+            <p className="text-sm text-muted">Acompanhamento do seu veículo</p>
+          </div>
+          <PortalLogoutButton />
+        </header>
+        <CadastroForm checklist={checklist} />
+      </main>
+    );
+  }
 
   let fotoUrls: string[] = [];
   if (checklist.fotos.length > 0) {

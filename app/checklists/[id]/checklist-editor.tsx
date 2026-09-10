@@ -100,6 +100,7 @@ export default function ChecklistEditor({
         <Info label="Nome" value={checklist.cliente_nome} />
         <Info label="Telefone" value={checklist.cliente_telefone} />
         <Info label="CPF" value={checklist.cliente_cpf} />
+        <Info label="Endereço" value={checklist.cliente_endereco} />
         <Info label="CEP" value={checklist.cliente_cep} />
         <Info label="Número" value={checklist.cliente_numero} />
         <Info label="Complemento" value={checklist.cliente_complemento} />
