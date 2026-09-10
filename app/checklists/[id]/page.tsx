@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Checklist } from "@/lib/types";
 import PrintButton from "./print-button";
+import DeleteButton from "./delete-button";
 import ChecklistEditor from "./checklist-editor";
 
 export default async function ChecklistPage({
@@ -39,7 +40,10 @@ export default async function ChecklistPage({
         <Link href="/" className="text-sm text-muted hover:text-foreground">
           ← Voltar
         </Link>
-        <PrintButton />
+        <div className="flex items-center gap-3">
+          <DeleteButton id={checklist.id} />
+          <PrintButton />
+        </div>
       </div>
 
       <ChecklistEditor checklist={checklist} fotoUrls={fotoUrls} />

@@ -59,12 +59,12 @@ export default function ChecklistEditor({
 
   return (
     <div className="animate-fade-in rounded-lg border border-border bg-surface p-6 shadow-sm print:border-0 print:shadow-none print:p-0">
-      <header className="mb-6 flex items-start justify-between border-b border-border pb-4">
+      <header className="mb-6 flex flex-col gap-2 border-b border-border pb-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="text-xl font-bold text-foreground">Ordem de Serviço</h1>
           <p className="text-sm text-muted">GearOS — Oficina Mecânica</p>
         </div>
-        <div className="text-right text-xs text-muted">
+        <div className="text-xs text-muted sm:text-right">
           <p>#{checklist.id}</p>
           <p>Aberta em {new Date(checklist.criado_em).toLocaleString("pt-BR")}</p>
           {checklist.atendente && <p>Atendente: {checklist.atendente}</p>}
@@ -112,7 +112,7 @@ export default function ChecklistEditor({
         <Info label="Ano" value={checklist.veiculo_ano} />
         <Info label="Cor" value={checklist.veiculo_cor} />
         <Info label="KM" value={checklist.veiculo_km} />
-        <Info label="Combustível (nível)" value={checklist.veiculo_combustivel} />
+        <Info label="Nível do tanque" value={checklist.veiculo_combustivel} />
         <Info
           label="Tipo de combustível"
           value={
@@ -124,7 +124,7 @@ export default function ChecklistEditor({
       </Grid>
 
       {fotoUrls.length > 0 && (
-        <section className="mb-5">
+        <section className="mb-5 print:hidden">
           <h2 className="mb-2 text-sm font-semibold text-foreground">Fotos do veículo</h2>
           <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
             {fotoUrls.map((url, i) => (
@@ -164,7 +164,7 @@ export default function ChecklistEditor({
         />
       </section>
 
-      <div className="mt-4 flex items-center justify-between print:hidden">
+      <div className="mt-4 flex flex-col gap-3 print:hidden sm:flex-row sm:items-center sm:justify-between">
         <p className="text-xs text-muted">
           {error ? (
             <span className="text-danger">{error}</span>
@@ -180,7 +180,7 @@ export default function ChecklistEditor({
           type="button"
           onClick={() => save()}
           disabled={!dirty || saving}
-          className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm hover:bg-primary-hover hover:shadow-md disabled:opacity-40 disabled:shadow-none"
+          className="whitespace-nowrap rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm hover:bg-primary-hover hover:shadow-md disabled:opacity-40 disabled:shadow-none sm:self-auto"
         >
           Salvar alterações
         </button>

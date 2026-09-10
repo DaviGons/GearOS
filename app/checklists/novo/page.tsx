@@ -183,7 +183,7 @@ export default function NovoChecklistPage() {
             <Field label="KM atual">
               <Input name="veiculo_km" placeholder="Ex: 85.000" />
             </Field>
-            <Field label="Combustível (nível)">
+            <Field label="Nível do tanque">
               <select
                 name="veiculo_combustivel"
                 defaultValue=""

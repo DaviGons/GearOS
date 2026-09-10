@@ -24,6 +24,10 @@ Sistema de checklist de entrada / ordem de serviço para oficinas mecânicas. Ne
 
    Abra [http://localhost:3000](http://localhost:3000).
 
+## Portal do cliente
+
+Cada O.S. gera um acesso somente-leitura para o cliente acompanhar o veículo em `/login` (aba "Sou cliente"): usuário é a placa, senha os 4 últimos dígitos do telefone informado na entrada. O acesso é derivado desses dados — não precisa cadastro separado e some automaticamente quando a O.S. é excluída.
+
 ## Deploy
 
-Projeto pronto para deploy na Vercel. Configure as variáveis de ambiente `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_ANON_KEY` no painel do projeto na Vercel.
+Projeto pronto para deploy na Vercel. Configure as variáveis de ambiente `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SECRET_KEY` e `PORTAL_SESSION_SECRET` no painel do projeto na Vercel.

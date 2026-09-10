@@ -58,3 +58,27 @@ export async function PATCH(
 
   return NextResponse.json(data);
 }
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
+  const supabase = await createClient();
+
+  const { data: row } = await supabase
+    .from("checklists")
+    .select("fotos")
+    .eq("id", id)
+    .single();
+
+  if (row?.fotos?.length) {
+    await supabase.storage.from("checklist-fotos").remove(row.fotos);
+  }
+
+  const { error } = await supabase.from("checklists").delete().eq("id", id);
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  return NextResponse.json({ ok: true });
+}

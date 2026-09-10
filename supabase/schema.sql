@@ -73,6 +73,12 @@ create policy "checklists_update_authenticated"
   using (true)
   with check (true);
 
+drop policy if exists "checklists_delete_authenticated" on public.checklists;
+create policy "checklists_delete_authenticated"
+  on public.checklists for delete
+  to authenticated
+  using (true);
+
 -- Bucket privado no Storage para as fotos do veículo (registradas no cadastro)
 insert into storage.buckets (id, name, public)
 values ('checklist-fotos', 'checklist-fotos', false)
