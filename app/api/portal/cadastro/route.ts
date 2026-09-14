@@ -3,8 +3,16 @@ import { cookies } from "next/headers";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { PORTAL_COOKIE_NAME, verifyPortalToken } from "@/lib/portal-session";
 import { isValidCPF } from "@/lib/validation";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 export async function PATCH(request: NextRequest) {
+  if (!checkRateLimit(request, "portal-cadastro", { limit: 20, windowMs: 60_000 })) {
+    return NextResponse.json(
+      { error: "Muitas tentativas. Aguarde um minuto e tente de novo." },
+      { status: 429 }
+    );
+  }
+
   const cookieStore = await cookies();
   const checklistId = verifyPortalToken(cookieStore.get(PORTAL_COOKIE_NAME)?.value);
 

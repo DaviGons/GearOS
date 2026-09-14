@@ -2,8 +2,47 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Checklist, STATUS_LABEL, Status, TIPO_COMBUSTIVEL_LABEL } from "@/lib/types";
+import { Checklist, Status, STATUS_LABEL } from "@/lib/types";
 import { STATUS_BADGE_CLASS } from "@/lib/status-style";
+import { fetchComRetry } from "@/lib/fetch-retry";
+
+type ClienteVeiculoFields = {
+  cliente_nome: string;
+  cliente_telefone: string;
+  cliente_cpf: string;
+  cliente_endereco: string;
+  cliente_cep: string;
+  cliente_numero: string;
+  cliente_complemento: string;
+  veiculo_placa: string;
+  veiculo_marca: string;
+  veiculo_modelo: string;
+  veiculo_ano: string;
+  veiculo_cor: string;
+  veiculo_km: string;
+  veiculo_combustivel: string;
+  veiculo_tipo_combustivel: string;
+};
+
+function toFields(checklist: Checklist): ClienteVeiculoFields {
+  return {
+    cliente_nome: checklist.cliente_nome ?? "",
+    cliente_telefone: checklist.cliente_telefone ?? "",
+    cliente_cpf: checklist.cliente_cpf ?? "",
+    cliente_endereco: checklist.cliente_endereco ?? "",
+    cliente_cep: checklist.cliente_cep ?? "",
+    cliente_numero: checklist.cliente_numero ?? "",
+    cliente_complemento: checklist.cliente_complemento ?? "",
+    veiculo_placa: checklist.veiculo_placa ?? "",
+    veiculo_marca: checklist.veiculo_marca ?? "",
+    veiculo_modelo: checklist.veiculo_modelo ?? "",
+    veiculo_ano: checklist.veiculo_ano ?? "",
+    veiculo_cor: checklist.veiculo_cor ?? "",
+    veiculo_km: checklist.veiculo_km ?? "",
+    veiculo_combustivel: checklist.veiculo_combustivel ?? "",
+    veiculo_tipo_combustivel: checklist.veiculo_tipo_combustivel ?? "",
+  };
+}
 
 export default function ChecklistEditor({
   checklist,
@@ -15,16 +54,27 @@ export default function ChecklistEditor({
   const router = useRouter();
 
   const [status, setStatus] = useState<Status>(checklist.status);
+  const [fields, setFields] = useState<ClienteVeiculoFields>(() => toFields(checklist));
   const [avarias, setAvarias] = useState(checklist.avarias ?? "");
   const [observacoes, setObservacoes] = useState(checklist.observacoes);
   const [saving, setSaving] = useState(false);
   const [savedAt, setSavedAt] = useState<Date | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  const initialFields = toFields(checklist);
+  const camposDirty = (Object.keys(fields) as (keyof ClienteVeiculoFields)[]).some(
+    (key) => fields[key] !== initialFields[key]
+  );
+
   const dirty =
     status !== checklist.status ||
     avarias !== (checklist.avarias ?? "") ||
-    observacoes !== checklist.observacoes;
+    observacoes !== checklist.observacoes ||
+    camposDirty;
+
+  function updateField<K extends keyof ClienteVeiculoFields>(key: K, value: string) {
+    setFields((prev) => ({ ...prev, [key]: value }));
+  }
 
   async function handleStatusChange(newStatus: Status) {
     setStatus(newStatus);
@@ -32,16 +82,24 @@ export default function ChecklistEditor({
   }
 
   async function save(overrides?: Partial<{ status: Status }>) {
+    if (!fields.cliente_nome.trim() || !fields.veiculo_placa.trim()) {
+      setError("Nome do cliente e placa do veículo não podem ficar vazios.");
+      return;
+    }
+
     setSaving(true);
     setError(null);
     try {
-      const res = await fetch(`/api/checklists/${checklist.id}`, {
+      const res = await fetchComRetry(`/api/checklists/${checklist.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           status: overrides?.status ?? status,
           avarias,
           observacoes,
+          ...fields,
+          cliente_nome: fields.cliente_nome.trim(),
+          veiculo_placa: fields.veiculo_placa.trim().toUpperCase(),
         }),
       });
       if (!res.ok) {
@@ -96,33 +154,110 @@ export default function ChecklistEditor({
         {STATUS_LABEL[status]}
       </span>
 
-      <Grid title="Cliente">
-        <Info label="Nome" value={checklist.cliente_nome} />
-        <Info label="Telefone" value={checklist.cliente_telefone} />
-        <Info label="CPF" value={checklist.cliente_cpf} />
-        <Info label="Endereço" value={checklist.cliente_endereco} />
-        <Info label="CEP" value={checklist.cliente_cep} />
-        <Info label="Número" value={checklist.cliente_numero} />
-        <Info label="Complemento" value={checklist.cliente_complemento} />
-      </Grid>
+      {error && (
+        <div className="mb-5 rounded-lg border border-danger/30 bg-danger/10 px-3 py-2 text-sm text-danger print:hidden">
+          {error}
+        </div>
+      )}
 
-      <Grid title="Veículo">
-        <Info label="Placa" value={checklist.veiculo_placa} />
-        <Info label="Marca" value={checklist.veiculo_marca} />
-        <Info label="Modelo" value={checklist.veiculo_modelo} />
-        <Info label="Ano" value={checklist.veiculo_ano} />
-        <Info label="Cor" value={checklist.veiculo_cor} />
-        <Info label="KM" value={checklist.veiculo_km} />
-        <Info label="Nível do tanque" value={checklist.veiculo_combustivel} />
-        <Info
-          label="Tipo de combustível"
-          value={
-            checklist.veiculo_tipo_combustivel
-              ? TIPO_COMBUSTIVEL_LABEL[checklist.veiculo_tipo_combustivel]
-              : null
-          }
-        />
-      </Grid>
+      <EditGrid title="Cliente">
+        <EditField label="Nome *">
+          <EditInput
+            value={fields.cliente_nome}
+            onChange={(v) => updateField("cliente_nome", v)}
+            required
+          />
+        </EditField>
+        <EditField label="Telefone">
+          <EditInput
+            value={fields.cliente_telefone}
+            onChange={(v) => updateField("cliente_telefone", v)}
+            placeholder="(00) 00000-0000"
+          />
+        </EditField>
+        <EditField label="CPF">
+          <EditInput
+            value={fields.cliente_cpf}
+            onChange={(v) => updateField("cliente_cpf", v)}
+            placeholder="000.000.000-00"
+          />
+        </EditField>
+        <EditField label="Endereço">
+          <EditInput
+            value={fields.cliente_endereco}
+            onChange={(v) => updateField("cliente_endereco", v)}
+            placeholder="Rua, avenida..."
+          />
+        </EditField>
+        <EditField label="CEP">
+          <EditInput
+            value={fields.cliente_cep}
+            onChange={(v) => updateField("cliente_cep", v)}
+            placeholder="00000-000"
+          />
+        </EditField>
+        <EditField label="Número">
+          <EditInput value={fields.cliente_numero} onChange={(v) => updateField("cliente_numero", v)} />
+        </EditField>
+        <EditField label="Complemento">
+          <EditInput
+            value={fields.cliente_complemento}
+            onChange={(v) => updateField("cliente_complemento", v)}
+          />
+        </EditField>
+      </EditGrid>
+
+      <EditGrid title="Veículo">
+        <EditField label="Placa *">
+          <EditInput
+            value={fields.veiculo_placa}
+            onChange={(v) => updateField("veiculo_placa", v)}
+            required
+            className="uppercase"
+          />
+        </EditField>
+        <EditField label="Marca">
+          <EditInput value={fields.veiculo_marca} onChange={(v) => updateField("veiculo_marca", v)} />
+        </EditField>
+        <EditField label="Modelo">
+          <EditInput value={fields.veiculo_modelo} onChange={(v) => updateField("veiculo_modelo", v)} />
+        </EditField>
+        <EditField label="Ano">
+          <EditInput value={fields.veiculo_ano} onChange={(v) => updateField("veiculo_ano", v)} />
+        </EditField>
+        <EditField label="Cor">
+          <EditInput value={fields.veiculo_cor} onChange={(v) => updateField("veiculo_cor", v)} />
+        </EditField>
+        <EditField label="KM">
+          <EditInput value={fields.veiculo_km} onChange={(v) => updateField("veiculo_km", v)} />
+        </EditField>
+        <EditField label="Nível do tanque">
+          <select
+            value={fields.veiculo_combustivel}
+            onChange={(e) => updateField("veiculo_combustivel", e.target.value)}
+            className="w-full rounded-lg border border-border bg-background px-3 py-1.5 text-sm text-foreground focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 print:border-0 print:bg-transparent print:px-0"
+          >
+            <option value="">—</option>
+            <option value="Reserva">Reserva</option>
+            <option value="1/4">1/4</option>
+            <option value="1/2">1/2</option>
+            <option value="3/4">3/4</option>
+            <option value="Cheio">Cheio</option>
+          </select>
+        </EditField>
+        <EditField label="Tipo de combustível">
+          <select
+            value={fields.veiculo_tipo_combustivel}
+            onChange={(e) => updateField("veiculo_tipo_combustivel", e.target.value)}
+            className="w-full rounded-lg border border-border bg-background px-3 py-1.5 text-sm text-foreground focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 print:border-0 print:bg-transparent print:px-0"
+          >
+            <option value="">—</option>
+            <option value="diesel">Diesel</option>
+            <option value="alcool">Álcool</option>
+            <option value="gasolina">Gasolina</option>
+          </select>
+        </EditField>
+      </EditGrid>
 
       {fotoUrls.length > 0 && (
         <section className="mb-5 print:hidden">
@@ -167,9 +302,7 @@ export default function ChecklistEditor({
 
       <div className="mt-4 flex flex-col gap-3 print:hidden sm:flex-row sm:items-center sm:justify-between">
         <p className="text-xs text-muted">
-          {error ? (
-            <span className="text-danger">{error}</span>
-          ) : saving ? (
+          {saving ? (
             "Salvando..."
           ) : savedAt ? (
             `Salvo às ${savedAt.toLocaleTimeString("pt-BR")}`
@@ -195,7 +328,7 @@ export default function ChecklistEditor({
   );
 }
 
-function Grid({ title, children }: { title: string; children: React.ReactNode }) {
+function EditGrid({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="mb-5">
       <h2 className="mb-2 text-sm font-semibold text-foreground">{title}</h2>
@@ -204,11 +337,35 @@ function Grid({ title, children }: { title: string; children: React.ReactNode })
   );
 }
 
-function Info({ label, value }: { label: string; value: string | null }) {
+function EditField({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div>
-      <p className="text-[11px] uppercase tracking-wide text-muted/70">{label}</p>
-      <p className="text-sm text-foreground">{value || "—"}</p>
-    </div>
+    <label className="block">
+      <span className="mb-1 block text-[11px] uppercase tracking-wide text-muted/70">{label}</span>
+      {children}
+    </label>
+  );
+}
+
+function EditInput({
+  value,
+  onChange,
+  required,
+  placeholder,
+  className,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  required?: boolean;
+  placeholder?: string;
+  className?: string;
+}) {
+  return (
+    <input
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      required={required}
+      placeholder={placeholder}
+      className={`w-full rounded-lg border border-border bg-background px-3 py-1.5 text-sm text-foreground focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 print:border-0 print:bg-transparent print:px-0 ${className ?? ""}`}
+    />
   );
 }

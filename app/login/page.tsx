@@ -3,6 +3,7 @@
 import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { fetchComRetry } from "@/lib/fetch-retry";
 
 export default function LoginPage() {
   return (
@@ -133,7 +134,7 @@ function ClienteForm() {
     setLoading(true);
 
     try {
-      const res = await fetch("/api/portal/login", {
+      const res = await fetchComRetry("/api/portal/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ placa, telefone }),

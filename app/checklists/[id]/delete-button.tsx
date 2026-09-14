@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { fetchComRetry } from "@/lib/fetch-retry";
 
 export default function DeleteButton({ id }: { id: number }) {
   const router = useRouter();
@@ -13,7 +14,7 @@ export default function DeleteButton({ id }: { id: number }) {
     setDeleting(true);
     setError(null);
     try {
-      const res = await fetch(`/api/checklists/${id}`, { method: "DELETE" });
+      const res = await fetchComRetry(`/api/checklists/${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error();
       router.push("/");
       router.refresh();

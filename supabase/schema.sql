@@ -37,6 +37,7 @@ create table if not exists public.checklists (
 
 create index if not exists checklists_criado_em_idx on public.checklists (criado_em desc);
 create index if not exists checklists_status_idx on public.checklists (status);
+create index if not exists checklists_veiculo_placa_idx on public.checklists (veiculo_placa);
 
 -- mantém atualizado_em em dia a cada UPDATE
 create or replace function public.set_atualizado_em()

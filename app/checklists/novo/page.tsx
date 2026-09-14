@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { fetchComRetry } from "@/lib/fetch-retry";
 
 const MAX_FOTOS = 8;
 const MAX_TAMANHO_MB = 10;
@@ -51,7 +52,7 @@ export default function NovoChecklistPage() {
 
     setSaving(true);
     try {
-      const res = await fetch("/api/checklists", {
+      const res = await fetchComRetry("/api/checklists", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -86,24 +87,35 @@ export default function NovoChecklistPage() {
       if (fotos.length > 0) {
         setUploadStatus(`Enviando fotos (0/${fotos.length})...`);
         const supabase = createClient();
-        const caminhos: string[] = [];
+        const caminhos: (string | null)[] = new Array(fotos.length).fill(null);
+        let concluidas = 0;
 
-        for (let i = 0; i < fotos.length; i++) {
-          const file = fotos[i];
-          const caminho = `${data.id}/${crypto.randomUUID()}-${file.name}`;
-          const { error: uploadError } = await supabase.storage
-            .from("checklist-fotos")
-            .upload(caminho, file);
+        const CONCORRENCIA = 3;
+        const fila = fotos.map((file, i) => ({ file, i }));
 
-          if (!uploadError) caminhos.push(caminho);
-          setUploadStatus(`Enviando fotos (${i + 1}/${fotos.length})...`);
+        async function worker() {
+          while (fila.length > 0) {
+            const item = fila.shift();
+            if (!item) break;
+            const caminho = `${data.id}/${crypto.randomUUID()}-${item.file.name}`;
+            const { error: uploadError } = await supabase.storage
+              .from("checklist-fotos")
+              .upload(caminho, item.file);
+
+            if (!uploadError) caminhos[item.i] = caminho;
+            concluidas += 1;
+            setUploadStatus(`Enviando fotos (${concluidas}/${fotos.length})...`);
+          }
         }
 
-        if (caminhos.length > 0) {
-          await fetch(`/api/checklists/${data.id}`, {
+        await Promise.all(Array.from({ length: Math.min(CONCORRENCIA, fotos.length) }, worker));
+
+        const caminhosValidos = caminhos.filter((c): c is string => c !== null);
+        if (caminhosValidos.length > 0) {
+          await fetchComRetry(`/api/checklists/${data.id}`, {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ fotos: caminhos }),
+            body: JSON.stringify({ fotos: caminhosValidos }),
           });
         }
       }

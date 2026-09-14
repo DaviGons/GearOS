@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { Status } from "@/lib/types";
+import { Status, TipoCombustivel } from "@/lib/types";
+
+const TIPOS_COMBUSTIVEL: TipoCombustivel[] = ["diesel", "alcool", "gasolina"];
 
 export async function GET(
   request: NextRequest,
@@ -27,7 +29,40 @@ type PatchBody = {
   observacoes?: string;
   avarias?: string | null;
   fotos?: string[];
+
+  cliente_nome?: string;
+  cliente_telefone?: string;
+  cliente_cpf?: string;
+  cliente_endereco?: string;
+  cliente_cep?: string;
+  cliente_numero?: string;
+  cliente_complemento?: string;
+
+  veiculo_placa?: string;
+  veiculo_marca?: string;
+  veiculo_modelo?: string;
+  veiculo_ano?: string;
+  veiculo_cor?: string;
+  veiculo_km?: string;
+  veiculo_combustivel?: string;
+  veiculo_tipo_combustivel?: string;
 };
+
+// campos opcionais: string vazia vira null, texto normal só recebe trim
+const CAMPOS_TEXTO_OPCIONAL = [
+  "cliente_telefone",
+  "cliente_cpf",
+  "cliente_endereco",
+  "cliente_cep",
+  "cliente_numero",
+  "cliente_complemento",
+  "veiculo_marca",
+  "veiculo_modelo",
+  "veiculo_ano",
+  "veiculo_cor",
+  "veiculo_km",
+  "veiculo_combustivel",
+] as const;
 
 export async function PATCH(
   request: NextRequest,
@@ -42,6 +77,33 @@ export async function PATCH(
   if (body.observacoes !== undefined) update.observacoes = body.observacoes.trim();
   if (body.avarias !== undefined) update.avarias = body.avarias;
   if (body.fotos !== undefined) update.fotos = body.fotos;
+
+  if (body.cliente_nome !== undefined) {
+    if (!body.cliente_nome.trim()) {
+      return NextResponse.json({ error: "Nome do cliente não pode ficar vazio." }, { status: 400 });
+    }
+    update.cliente_nome = body.cliente_nome.trim();
+  }
+
+  if (body.veiculo_placa !== undefined) {
+    if (!body.veiculo_placa.trim()) {
+      return NextResponse.json({ error: "Placa do veículo não pode ficar vazia." }, { status: 400 });
+    }
+    update.veiculo_placa = body.veiculo_placa.trim().toUpperCase();
+  }
+
+  for (const campo of CAMPOS_TEXTO_OPCIONAL) {
+    const valor = body[campo];
+    if (valor !== undefined) update[campo] = valor.trim() || null;
+  }
+
+  if (body.veiculo_tipo_combustivel !== undefined) {
+    const valor = body.veiculo_tipo_combustivel.trim();
+    if (valor && !TIPOS_COMBUSTIVEL.includes(valor as TipoCombustivel)) {
+      return NextResponse.json({ error: "Tipo de combustível inválido." }, { status: 400 });
+    }
+    update.veiculo_tipo_combustivel = valor || null;
+  }
 
   if (Object.keys(update).length === 0) {
     return NextResponse.json({ error: "Nada para atualizar." }, { status: 400 });

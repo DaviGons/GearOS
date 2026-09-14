@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Checklist } from "@/lib/types";
+import { fetchComRetry } from "@/lib/fetch-retry";
 
 export default function CadastroForm({ checklist }: { checklist: Checklist }) {
   const router = useRouter();
@@ -17,7 +18,7 @@ export default function CadastroForm({ checklist }: { checklist: Checklist }) {
     const form = new FormData(e.currentTarget);
 
     try {
-      const res = await fetch("/api/portal/cadastro", {
+      const res = await fetchComRetry("/api/portal/cadastro", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

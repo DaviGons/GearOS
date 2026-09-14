@@ -1,8 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createPortalToken, PORTAL_COOKIE_NAME, PORTAL_COOKIE_MAX_AGE } from "@/lib/portal-session";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 export async function POST(request: NextRequest) {
+  if (!checkRateLimit(request, "portal-login", { limit: 10, windowMs: 60_000 })) {
+    return NextResponse.json(
+      { error: "Muitas tentativas. Aguarde um minuto e tente de novo." },
+      { status: 429 }
+    );
+  }
+
   const body = await request.json().catch(() => ({}));
   const placa = String(body.placa || "").trim().toUpperCase();
   const telefoneFinal = String(body.telefone || "").replace(/\D/g, "");

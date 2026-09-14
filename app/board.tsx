@@ -16,6 +16,7 @@ import {
 } from "@dnd-kit/core";
 import { Checklist, STATUS_LABEL, STATUS_ORDER, Status } from "@/lib/types";
 import { STATUS_COLUMN_ACCENT } from "@/lib/status-style";
+import { fetchComRetry } from "@/lib/fetch-retry";
 
 function groupByStatus(rows: Checklist[]): Record<Status, Checklist[]> {
   const grupos: Record<Status, Checklist[]> = {
@@ -60,7 +61,7 @@ export default function Board({ rows: initialRows }: { rows: Checklist[] }) {
     setError(null);
 
     try {
-      const res = await fetch(`/api/checklists/${id}`, {
+      const res = await fetchComRetry(`/api/checklists/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: newStatus }),
