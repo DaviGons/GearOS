@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Checklist, Status, STATUS_LABEL } from "@/lib/types";
 import { STATUS_BADGE_CLASS } from "@/lib/status-style";
 import { fetchComRetry } from "@/lib/fetch-retry";
+import { Logo } from "../../logo";
 
 type ClienteVeiculoFields = {
   cliente_nome: string;
@@ -119,8 +120,8 @@ export default function ChecklistEditor({
     <div className="animate-fade-in rounded-lg border border-border bg-surface p-6 shadow-sm print:border-0 print:shadow-none print:p-0">
       <header className="mb-6 flex flex-col gap-2 border-b border-border pb-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h1 className="text-xl font-bold text-foreground">Ordem de Serviço</h1>
-          <p className="text-sm text-muted">GearOS — Oficina Mecânica</p>
+          <Logo size="md" />
+          <h1 className="mt-1.5 text-lg font-bold text-foreground">Ordem de Serviço</h1>
         </div>
         <div className="text-xs text-muted sm:text-right">
           <p>#{checklist.id}</p>

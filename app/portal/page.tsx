@@ -6,6 +6,7 @@ import { Checklist, STATUS_LABEL, STATUS_ORDER, TIPO_COMBUSTIVEL_LABEL } from "@
 import { cadastroClienteCompleto } from "@/lib/validation";
 import PortalLogoutButton from "./logout-button";
 import CadastroForm from "./cadastro-form";
+import { Logo } from "../logo";
 
 export default async function PortalPage() {
   const cookieStore = await cookies();
@@ -29,8 +30,10 @@ export default async function PortalPage() {
       <main className="flex-1 mx-auto w-full max-w-2xl px-4 py-8">
         <header className="mb-6 flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">GearOS</h1>
-            <p className="text-sm text-muted">Acompanhamento do seu veículo</p>
+            <h1>
+              <Logo size="lg" />
+            </h1>
+            <p className="mt-0.5 text-sm text-muted">Acompanhamento do seu veículo</p>
           </div>
           <PortalLogoutButton />
         </header>
@@ -55,8 +58,10 @@ export default async function PortalPage() {
     <main className="animate-fade-in flex-1 mx-auto w-full max-w-2xl px-4 py-8">
       <header className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">GearOS</h1>
-          <p className="text-sm text-muted">Acompanhamento do seu veículo</p>
+          <h1>
+            <Logo size="lg" />
+          </h1>
+          <p className="mt-0.5 text-sm text-muted">Acompanhamento do seu veículo</p>
         </div>
         <PortalLogoutButton />
       </header>

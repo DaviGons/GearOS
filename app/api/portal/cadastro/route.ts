@@ -43,7 +43,7 @@ export async function PATCH(request: NextRequest) {
   }
 
   const supabase = createAdminClient();
-  const { error } = await supabase
+  const { data: atualizadas, error } = await supabase
     .from("checklists")
     .update({
       cliente_nome,
@@ -54,9 +54,18 @@ export async function PATCH(request: NextRequest) {
       cliente_complemento: cliente_complemento || null,
       cliente_telefone,
     })
-    .eq("id", checklistId);
+    .eq("id", checklistId)
+    .select("id");
 
   if (error) return NextResponse.json({ error: "Erro ao salvar cadastro." }, { status: 500 });
+
+  // a O.S. pode ter sido excluída enquanto o cliente estava com a tela aberta
+  if (!atualizadas || atualizadas.length === 0) {
+    return NextResponse.json(
+      { error: "Esta ordem de serviço não existe mais. Faça login novamente." },
+      { status: 404 }
+    );
+  }
 
   return NextResponse.json({ ok: true });
 }

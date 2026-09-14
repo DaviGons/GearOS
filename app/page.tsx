@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Checklist } from "@/lib/types";
 import LogoutButton from "./logout-button";
 import Board from "./board";
+import { Logo } from "./logo";
 
 export default async function HomePage({
   searchParams,
@@ -26,8 +27,10 @@ export default async function HomePage({
     <main className="animate-fade-in flex-1 mx-auto w-full max-w-[1400px] px-4 py-8 flex flex-col min-h-0">
       <header className="flex flex-col gap-3 mb-6 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">GearOS</h1>
-          <p className="text-sm text-muted">Ordens de serviço da oficina</p>
+          <h1>
+            <Logo size="lg" />
+          </h1>
+          <p className="mt-0.5 text-sm text-muted">Ordens de serviço da oficina</p>
         </div>
         <div className="flex items-center justify-between gap-4 sm:justify-end">
           <LogoutButton />

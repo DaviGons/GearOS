@@ -114,9 +114,15 @@ export async function PATCH(
     .update(update)
     .eq("id", id)
     .select("*")
-    .single();
+    .maybeSingle();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  // mesmo caso do DELETE: zero linhas atualizadas não é erro no banco, mas
+  // também não é sucesso do ponto de vista de quem chamou
+  if (!data) {
+    return NextResponse.json({ error: "Checklist não encontrado." }, { status: 404 });
+  }
 
   return NextResponse.json(data);
 }
@@ -138,9 +144,21 @@ export async function DELETE(
     await supabase.storage.from("checklist-fotos").remove(row.fotos);
   }
 
-  const { error } = await supabase.from("checklists").delete().eq("id", id);
+  const { data: apagadas, error } = await supabase
+    .from("checklists")
+    .delete()
+    .eq("id", id)
+    .select("id");
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  // Um delete que não encontra a linha (id inexistente, ou bloqueado pelas
+  // policies de RLS por falta de sessão) não é erro no Postgres: ele afeta
+  // zero linhas e volta "sucesso". Sem conferir isso aqui, a rota responderia
+  // ok para uma exclusão que nunca aconteceu.
+  if (!apagadas || apagadas.length === 0) {
+    return NextResponse.json({ error: "Checklist não encontrado." }, { status: 404 });
+  }
 
   return NextResponse.json({ ok: true });
 }

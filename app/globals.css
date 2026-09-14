@@ -69,6 +69,19 @@ textarea,
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* Brilho ambiente atrás do card de login. Feito com gradientes em vez de uma
+   imagem de fundo: não pesa nada, acompanha a paleta e não serrilha. */
+.brand-glow::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(38% 34% at 20% 22%, rgba(133, 199, 242, 0.06), transparent 70%),
+    radial-gradient(42% 38% at 82% 78%, rgba(36, 106, 115, 0.14), transparent 70%),
+    radial-gradient(24% 22% at 70% 10%, rgba(255, 207, 86, 0.035), transparent 70%);
+}
+
 @keyframes fade-in {
   from {
     opacity: 0;
@@ -94,8 +107,47 @@ textarea,
 }
 
 @media print {
+  /* A O.S. é impressa em papel branco, mas as classes do app (text-foreground,
+     bg-surface, badges de status...) apontam para as cores do tema escuro —
+     texto quase branco sobre papel branco sai invisível. Em vez de caçar cada
+     classe, reescrevemos as variáveis: como o @theme acima é `inline`, toda a
+     interface se adapta de uma vez. */
+  :root {
+    --background: #ffffff;
+    --surface: #ffffff;
+    --surface-hover: #ffffff;
+    --foreground: #111827;
+    --muted: #4b5563;
+
+    --border: #d1d5db;
+    --border-hover: #d1d5db;
+
+    --primary: #1b5158;
+    --primary-hover: #1b5158;
+    --primary-foreground: #ffffff;
+
+    --accent: #1d4ed8;
+    --accent-foreground: #ffffff;
+
+    --attention: #92600a;
+    --attention-foreground: #ffffff;
+
+    --danger: #b91c1c;
+    --danger-foreground: #ffffff;
+  }
+
   body {
     background: #ffffff;
-    color: #0f172a;
+    color: var(--foreground);
+    /* sem isto o navegador descarta os fundos dos badges de status */
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  /* O --attention escurecido acima serve para os badges lerem no papel, mas
+     deixa o check do símbolo quase da mesma cor da engrenagem. Aqui ele volta
+     a um dourado com contraste suficiente sobre branco. */
+  .gearos-check {
+    stroke: #c8891a;
   }
 }

@@ -4,6 +4,7 @@ import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { fetchComRetry } from "@/lib/fetch-retry";
+import { Logo } from "../logo";
 
 export default function LoginPage() {
   return (
@@ -20,9 +21,11 @@ function LoginTabs() {
   );
 
   return (
-    <main className="flex flex-1 items-center justify-center px-4">
-      <div className="animate-fade-in w-full max-w-sm rounded-xl border border-border bg-surface p-6 shadow-lg shadow-black/20">
-        <h1 className="mb-1 text-xl font-bold text-foreground">GearOS</h1>
+    <main className="brand-glow relative flex flex-1 items-center justify-center overflow-hidden px-4">
+      <div className="animate-fade-in relative w-full max-w-sm rounded-xl border border-border bg-surface p-6 shadow-lg shadow-black/20">
+        <h1 className="mb-1.5">
+          <Logo size="md" />
+        </h1>
         <p className="mb-5 text-sm text-muted">
           {tab === "oficina" ? "Entre para acessar o sistema da oficina" : "Acompanhe o seu veículo"}
         </p>
