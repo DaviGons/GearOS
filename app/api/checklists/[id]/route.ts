@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { Status, TipoCombustivel } from "@/lib/types";
+import { BUCKET_ANEXOS, MAX_ANEXOS } from "@/lib/anexos";
 
 const TIPOS_COMBUSTIVEL: TipoCombustivel[] = ["diesel", "alcool", "gasolina"];
 
@@ -76,7 +77,27 @@ export async function PATCH(
   if (body.status !== undefined) update.status = body.status;
   if (body.observacoes !== undefined) update.observacoes = body.observacoes.trim();
   if (body.avarias !== undefined) update.avarias = body.avarias;
-  if (body.fotos !== undefined) update.fotos = body.fotos;
+  if (body.fotos !== undefined) {
+    if (
+      !Array.isArray(body.fotos) ||
+      body.fotos.some((caminho) => typeof caminho !== "string")
+    ) {
+      return NextResponse.json({ error: "Lista de anexos inválida." }, { status: 400 });
+    }
+    if (body.fotos.length > MAX_ANEXOS) {
+      return NextResponse.json(
+        { error: `No máximo ${MAX_ANEXOS} anexos por O.S.` },
+        { status: 400 }
+      );
+    }
+    // Todo anexo mora na pasta da própria O.S. Sem esta checagem, daria para
+    // pendurar nesta O.S. o arquivo de outra — ou remover o arquivo alheio no
+    // momento em que ele saísse da lista.
+    if (body.fotos.some((caminho) => !caminho.startsWith(`${id}/`))) {
+      return NextResponse.json({ error: "Anexo fora desta O.S." }, { status: 400 });
+    }
+    update.fotos = body.fotos;
+  }
 
   if (body.cliente_nome !== undefined) {
     if (!body.cliente_nome.trim()) {
@@ -109,6 +130,13 @@ export async function PATCH(
     return NextResponse.json({ error: "Nada para atualizar." }, { status: 400 });
   }
 
+  // a lista atual é lida antes para descobrir quais arquivos ficaram órfãos
+  const anteriores =
+    body.fotos === undefined
+      ? []
+      : ((await supabase.from("checklists").select("fotos").eq("id", id).maybeSingle()).data
+          ?.fotos as string[] | undefined) ?? [];
+
   const { data, error } = await supabase
     .from("checklists")
     .update(update)
@@ -122,6 +150,13 @@ export async function PATCH(
   // também não é sucesso do ponto de vista de quem chamou
   if (!data) {
     return NextResponse.json({ error: "Checklist não encontrado." }, { status: 404 });
+  }
+
+  // Só depois de a gravação dar certo: o que saiu da lista é apagado do bucket,
+  // senão sobraria arquivo pago ocupando espaço sem nada apontando para ele.
+  const removidos = anteriores.filter((caminho) => !data.fotos.includes(caminho));
+  if (removidos.length > 0) {
+    await supabase.storage.from(BUCKET_ANEXOS).remove(removidos);
   }
 
   return NextResponse.json(data);

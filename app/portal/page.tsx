@@ -4,6 +4,7 @@ import { PORTAL_COOKIE_NAME, verifyPortalToken } from "@/lib/portal-session";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { Checklist, STATUS_LABEL, STATUS_ORDER, TIPO_COMBUSTIVEL_LABEL } from "@/lib/types";
 import { cadastroClienteCompleto } from "@/lib/validation";
+import { BUCKET_ANEXOS, ehImagem } from "@/lib/anexos";
 import PortalLogoutButton from "./logout-button";
 import CadastroForm from "./cadastro-form";
 import { Logo } from "../logo";
@@ -42,11 +43,15 @@ export default async function PortalPage() {
     );
   }
 
+  // O cliente vê só as fotos. Documentos anexados na O.S. (orçamento, nota,
+  // laudo) são material interno da oficina e ficam de fora daqui.
+  const caminhosDeFoto = checklist.fotos.filter(ehImagem);
+
   let fotoUrls: string[] = [];
-  if (checklist.fotos.length > 0) {
+  if (caminhosDeFoto.length > 0) {
     const { data: signed } = await supabase.storage
-      .from("checklist-fotos")
-      .createSignedUrls(checklist.fotos, 3600);
+      .from(BUCKET_ANEXOS)
+      .createSignedUrls(caminhosDeFoto, 3600);
     fotoUrls = (signed ?? [])
       .map((s) => s.signedUrl)
       .filter((url): url is string => Boolean(url));
@@ -102,7 +107,7 @@ export default async function PortalPage() {
 
         {fotoUrls.length > 0 && (
           <section className="mt-6">
-            <h2 className="mb-2 text-sm font-semibold text-foreground">Fotos registradas na entrada</h2>
+            <h2 className="mb-2 text-sm font-semibold text-foreground">Fotos do seu veículo</h2>
             <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
               {fotoUrls.map((url, i) => (
                 <a

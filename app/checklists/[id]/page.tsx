@@ -2,9 +2,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Checklist } from "@/lib/types";
+import { BUCKET_ANEXOS } from "@/lib/anexos";
 import PrintButton from "./print-button";
 import DeleteButton from "./delete-button";
 import ChecklistEditor from "./checklist-editor";
+import type { Anexo } from "./anexos";
 
 export default async function ChecklistPage({
   params,
@@ -24,14 +26,18 @@ export default async function ChecklistPage({
 
   const checklist = row as Checklist;
 
-  let fotoUrls: string[] = [];
+  // O bucket é privado: cada anexo vira uma URL assinada de 1h. O caminho vai
+  // junto porque é ele, e não a URL, que identifica o arquivo na hora de
+  // remover.
+  let anexos: Anexo[] = [];
   if (checklist.fotos.length > 0) {
-    const { data: signed } = await supabase.storage
-      .from("checklist-fotos")
+    const { data: assinadas } = await supabase.storage
+      .from(BUCKET_ANEXOS)
       .createSignedUrls(checklist.fotos, 3600);
-    fotoUrls = (signed ?? [])
-      .map((s) => s.signedUrl)
-      .filter((url): url is string => Boolean(url));
+
+    anexos = (assinadas ?? [])
+      .map((item, i) => ({ caminho: checklist.fotos[i], url: item.signedUrl }))
+      .filter((a): a is Anexo => Boolean(a.caminho && a.url));
   }
 
   return (
@@ -46,7 +52,7 @@ export default async function ChecklistPage({
         </div>
       </div>
 
-      <ChecklistEditor checklist={checklist} fotoUrls={fotoUrls} />
+      <ChecklistEditor checklist={checklist} anexos={anexos} />
     </main>
   );
 }

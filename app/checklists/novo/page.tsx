@@ -5,9 +5,9 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { fetchComRetry } from "@/lib/fetch-retry";
+import { MAX_ANEXO_MB, enviarAnexos, validarAnexos } from "@/lib/anexos";
 
 const MAX_FOTOS = 8;
-const MAX_TAMANHO_MB = 10;
 
 export default function NovoChecklistPage() {
   const router = useRouter();
@@ -21,14 +21,9 @@ export default function NovoChecklistPage() {
     const selecionados = Array.from(e.target.files ?? []);
     if (selecionados.length === 0) return;
 
-    const grandeDemais = selecionados.find((f) => f.size > MAX_TAMANHO_MB * 1024 * 1024);
-    if (grandeDemais) {
-      setError(`"${grandeDemais.name}" passa de ${MAX_TAMANHO_MB}MB.`);
-    } else {
-      setError(null);
-    }
-
-    setFotos((prev) => [...prev, ...selecionados].slice(0, MAX_FOTOS));
+    const { aceitos, erro } = validarAnexos(selecionados, fotos.length, MAX_FOTOS);
+    setError(erro);
+    setFotos((prev) => [...prev, ...aceitos]);
     if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
@@ -86,36 +81,15 @@ export default function NovoChecklistPage() {
 
       if (fotos.length > 0) {
         setUploadStatus(`Enviando fotos (0/${fotos.length})...`);
-        const supabase = createClient();
-        const caminhos: (string | null)[] = new Array(fotos.length).fill(null);
-        let concluidas = 0;
+        const { caminhos } = await enviarAnexos(createClient(), data.id, fotos, (feitas, total) =>
+          setUploadStatus(`Enviando fotos (${feitas}/${total})...`)
+        );
 
-        const CONCORRENCIA = 3;
-        const fila = fotos.map((file, i) => ({ file, i }));
-
-        async function worker() {
-          while (fila.length > 0) {
-            const item = fila.shift();
-            if (!item) break;
-            const caminho = `${data.id}/${crypto.randomUUID()}-${item.file.name}`;
-            const { error: uploadError } = await supabase.storage
-              .from("checklist-fotos")
-              .upload(caminho, item.file);
-
-            if (!uploadError) caminhos[item.i] = caminho;
-            concluidas += 1;
-            setUploadStatus(`Enviando fotos (${concluidas}/${fotos.length})...`);
-          }
-        }
-
-        await Promise.all(Array.from({ length: Math.min(CONCORRENCIA, fotos.length) }, worker));
-
-        const caminhosValidos = caminhos.filter((c): c is string => c !== null);
-        if (caminhosValidos.length > 0) {
+        if (caminhos.length > 0) {
           await fetchComRetry(`/api/checklists/${data.id}`, {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ fotos: caminhosValidos }),
+            body: JSON.stringify({ fotos: caminhos }),
           });
         }
       }
@@ -231,7 +205,7 @@ export default function NovoChecklistPage() {
         <Section title="Fotos do veículo (opcional)">
           <p className="mb-3 text-xs text-muted">
             Registre o estado atual do veículo — ajuda a evitar contestações do cliente depois.
-            Até {MAX_FOTOS} fotos, {MAX_TAMANHO_MB}MB cada.
+            Até {MAX_FOTOS} fotos, {MAX_ANEXO_MB}MB cada. Dá para anexar mais depois, na tela da O.S.
           </p>
 
           {fotos.length > 0 && (
@@ -265,7 +239,6 @@ export default function NovoChecklistPage() {
                 type="file"
                 accept="image/*"
                 multiple
-                capture="environment"
                 onChange={handleFilesSelected}
                 className="hidden"
               />

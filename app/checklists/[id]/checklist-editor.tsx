@@ -6,6 +6,7 @@ import { Checklist, Status, STATUS_LABEL } from "@/lib/types";
 import { STATUS_BADGE_CLASS } from "@/lib/status-style";
 import { fetchComRetry } from "@/lib/fetch-retry";
 import { Logo } from "../../logo";
+import Anexos, { type Anexo } from "./anexos";
 
 type ClienteVeiculoFields = {
   cliente_nome: string;
@@ -47,10 +48,10 @@ function toFields(checklist: Checklist): ClienteVeiculoFields {
 
 export default function ChecklistEditor({
   checklist,
-  fotoUrls,
+  anexos,
 }: {
   checklist: Checklist;
-  fotoUrls: string[];
+  anexos: Anexo[];
 }) {
   const router = useRouter();
 
@@ -260,25 +261,7 @@ export default function ChecklistEditor({
         </EditField>
       </EditGrid>
 
-      {fotoUrls.length > 0 && (
-        <section className="mb-5 print:hidden">
-          <h2 className="mb-2 text-sm font-semibold text-foreground">Fotos do veículo</h2>
-          <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
-            {fotoUrls.map((url, i) => (
-              <a
-                key={i}
-                href={url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block aspect-square overflow-hidden rounded-lg border border-border hover:border-accent"
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={url} alt={`Foto ${i + 1} do veículo`} className="h-full w-full object-cover" />
-              </a>
-            ))}
-          </div>
-        </section>
-      )}
+      <Anexos checklistId={checklist.id} anexos={anexos} />
 
       <section className="mb-5">
         <h2 className="mb-1 text-sm font-semibold text-foreground">Avarias / riscos visíveis</h2>
