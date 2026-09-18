@@ -22,35 +22,46 @@ export default function OpenGraphImage() {
           position: "relative",
         }}
       >
-        {/* marca gigante sangrando pela direita, bem apagada — dá profundidade
+        {/* marca grande sangrando pela direita, bem apagada — dá profundidade
             sem competir com o texto na miniatura */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={markDataUri()}
-          width={700}
-          height={700}
+          width={660}
+          height={660}
           alt=""
-          style={{ position: "absolute", right: -230, top: -35, opacity: 0.05 }}
+          style={{ position: "absolute", right: -190, top: -15, opacity: 0.07 }}
         />
 
-        <div style={{ display: "flex", alignItems: "center", gap: 28 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 26 }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={markDataUri()} width={104} height={104} alt="" />
           <span
             style={{
               fontSize: 92,
-              fontWeight: 700,
+              fontWeight: 600,
               letterSpacing: "-0.03em",
-              color: CORES.texto,
+              color: CORES.tinta,
             }}
           >
             GearOS
           </span>
         </div>
 
-        <span style={{ marginTop: 28, fontSize: 38, color: CORES.muted }}>
+        <span style={{ marginTop: 26, fontSize: 38, color: CORES.muted }}>
           Gestão de oficina, do check-in à entrega
         </span>
+
+        <div
+          style={{
+            display: "flex",
+            marginTop: 40,
+            width: 96,
+            height: 6,
+            borderRadius: 3,
+            background: CORES.vermelho,
+          }}
+        />
       </div>
     ),
     size

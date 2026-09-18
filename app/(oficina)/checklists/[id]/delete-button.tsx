@@ -34,7 +34,7 @@ export default function DeleteButton({ id }: { id: number }) {
           type="button"
           onClick={handleDelete}
           disabled={deleting}
-          className="rounded-lg bg-danger px-3 py-2 text-sm font-semibold text-danger-foreground hover:opacity-90 disabled:opacity-50"
+          className="rounded-lg bg-danger px-3 py-2 text-sm font-medium text-danger-foreground hover:opacity-90 disabled:opacity-50"
         >
           {deleting ? "Excluindo..." : "Confirmar"}
         </button>

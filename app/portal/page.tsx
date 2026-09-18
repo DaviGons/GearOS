@@ -71,7 +71,7 @@ export default async function PortalPage() {
         <PortalLogoutButton />
       </header>
 
-      <div className="rounded-lg border border-border bg-surface p-6 shadow-sm">
+      <div className="rounded-lg border border-border bg-surface p-6">
         <div className="mb-6 flex items-center justify-between">
           <div>
             <p className="text-lg font-semibold text-foreground">
@@ -147,7 +147,7 @@ function Stepper({ currentIndex }: { currentIndex: number }) {
                   done
                     ? "bg-primary text-primary-foreground"
                     : active
-                      ? "bg-attention text-attention-foreground"
+                      ? "bg-accent text-accent-foreground"
                       : "bg-background text-muted border border-border"
                 }`}
               >

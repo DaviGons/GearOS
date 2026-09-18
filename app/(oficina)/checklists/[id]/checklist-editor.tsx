@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Checklist, Status, STATUS_LABEL } from "@/lib/types";
 import { STATUS_BADGE_CLASS } from "@/lib/status-style";
 import { fetchComRetry } from "@/lib/fetch-retry";
-import { Logo } from "../../logo";
+import { Logo } from "../../../logo";
 import Anexos, { type Anexo } from "./anexos";
 
 type ClienteVeiculoFields = {
@@ -118,11 +118,15 @@ export default function ChecklistEditor({
   }
 
   return (
-    <div className="animate-fade-in rounded-lg border border-border bg-surface p-6 shadow-sm print:border-0 print:shadow-none print:p-0">
+    <div className="animate-fade-in rounded-lg border border-border bg-surface p-6 print:border-0 print:shadow-none print:p-0">
       <header className="mb-6 flex flex-col gap-2 border-b border-border pb-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <Logo size="md" />
-          <h1 className="mt-1.5 text-lg font-bold text-foreground">Ordem de Serviço</h1>
+          {/* na tela a marca já está na barra lateral; no papel ela é o
+              timbrado da O.S., então aparece só na impressão */}
+          <span className="hidden print:block">
+            <Logo size="md" />
+          </span>
+          <h1 className="text-lg font-semibold text-foreground print:mt-1.5">Ordem de Serviço</h1>
         </div>
         <div className="text-xs text-muted sm:text-right">
           <p>#{checklist.id}</p>
@@ -298,7 +302,7 @@ export default function ChecklistEditor({
           type="button"
           onClick={() => save()}
           disabled={!dirty || saving}
-          className="whitespace-nowrap rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm hover:bg-primary-hover hover:shadow-md disabled:opacity-40 disabled:shadow-none sm:self-auto"
+          className="whitespace-nowrap rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary-hover disabled:opacity-40 disabled:shadow-none sm:self-auto"
         >
           Salvar alterações
         </button>

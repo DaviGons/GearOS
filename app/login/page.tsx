@@ -21,8 +21,8 @@ function LoginTabs() {
   );
 
   return (
-    <main className="brand-glow relative flex flex-1 items-center justify-center overflow-hidden px-4">
-      <div className="animate-fade-in relative w-full max-w-sm rounded-xl border border-border bg-surface p-6 shadow-lg shadow-black/20">
+    <main className="flex flex-1 items-center justify-center px-4">
+      <div className="animate-fade-in w-full max-w-sm rounded-xl border border-border bg-surface p-6 shadow-foreground/5">
         <h1 className="mb-1.5">
           <Logo size="md" />
         </h1>
@@ -116,7 +116,7 @@ function OficinaForm() {
       <button
         type="submit"
         disabled={loading}
-        className="w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm hover:bg-primary-hover hover:shadow-md disabled:opacity-50"
+        className="w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary-hover disabled:opacity-50"
       >
         {loading ? "Entrando..." : "Entrar"}
       </button>
@@ -195,7 +195,7 @@ function ClienteForm() {
       <button
         type="submit"
         disabled={loading}
-        className="w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm hover:bg-primary-hover hover:shadow-md disabled:opacity-50"
+        className="w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary-hover disabled:opacity-50"
       >
         {loading ? "Buscando..." : "Ver status do veículo"}
       </button>

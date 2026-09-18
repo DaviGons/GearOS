@@ -17,11 +17,16 @@ export default function AppleIcon() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: CORES.fundo,
+          background: CORES.tinta,
         }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={markDataUri()} width={132} height={132} alt="" />
+        <img
+          src={markDataUri({ traco: CORES.fundo, espessura: 5.5 })}
+          width={130}
+          height={130}
+          alt=""
+        />
       </div>
     ),
     size
