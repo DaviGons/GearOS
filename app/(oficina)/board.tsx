@@ -15,12 +15,12 @@ import {
   type DragEndEvent,
   type DragStartEvent,
 } from "@dnd-kit/core";
-import { Checklist, STATUS_LABEL, STATUS_ORDER, Status } from "@/lib/types";
+import { ChecklistResumo, STATUS_LABEL, STATUS_ORDER, Status } from "@/lib/types";
 import { STATUS_COLUMN_ACCENT, STATUS_DOT_CLASS } from "@/lib/status-style";
 import { fetchComRetry } from "@/lib/fetch-retry";
 
-function groupByStatus(rows: Checklist[]): Record<Status, Checklist[]> {
-  const grupos: Record<Status, Checklist[]> = {
+function groupByStatus(rows: ChecklistResumo[]): Record<Status, ChecklistResumo[]> {
+  const grupos: Record<Status, ChecklistResumo[]> = {
     recebido: [],
     em_andamento: [],
     finalizado: [],
@@ -30,7 +30,7 @@ function groupByStatus(rows: Checklist[]): Record<Status, Checklist[]> {
   return grupos;
 }
 
-export default function Board({ rows: initialRows }: { rows: Checklist[] }) {
+export default function Board({ rows: initialRows }: { rows: ChecklistResumo[] }) {
   const router = useRouter();
   const [rows, setRows] = useState(initialRows);
   const [activeId, setActiveId] = useState<number | null>(null);
@@ -139,7 +139,7 @@ function Column({
   limpando,
 }: {
   status: Status;
-  rows: Checklist[];
+  rows: ChecklistResumo[];
   onLimpar?: () => void;
   limpando: boolean;
 }) {
@@ -213,7 +213,7 @@ function Column({
   );
 }
 
-function Card({ row }: { row: Checklist }) {
+function Card({ row }: { row: ChecklistResumo }) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: row.id });
 
   return (
@@ -230,7 +230,7 @@ function Card({ row }: { row: Checklist }) {
   );
 }
 
-function CardContent({ row, dragging }: { row: Checklist; dragging?: boolean }) {
+function CardContent({ row, dragging }: { row: ChecklistResumo; dragging?: boolean }) {
   return (
     <div
       className={`cursor-grab rounded-lg border border-border bg-surface p-2.5 active:cursor-grabbing hover:border-border-hover ${

@@ -46,6 +46,26 @@ export type Checklist = {
   observacoes: string;
 };
 
+/**
+ * O que o cartão do quadro realmente usa. O quadro carrega até 300 O.S. de
+ * uma vez: puxar `select("*")` traria `observacoes` e `avarias` inteiras de
+ * todas elas só para desenhar nome, placa e data.
+ */
+export type ChecklistResumo = Pick<
+  Checklist,
+  | "id"
+  | "status"
+  | "cliente_nome"
+  | "veiculo_marca"
+  | "veiculo_modelo"
+  | "veiculo_placa"
+  | "criado_em"
+>;
+
+/** Colunas do ChecklistResumo, prontas para o `.select()` do Supabase. */
+export const CAMPOS_RESUMO =
+  "id,status,cliente_nome,veiculo_marca,veiculo_modelo,veiculo_placa,criado_em";
+
 export type ChecklistInput = {
   atendente?: string;
 

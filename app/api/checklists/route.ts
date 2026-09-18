@@ -1,32 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { ChecklistInput } from "@/lib/types";
+import { erroDeTamanho } from "@/lib/validation";
 
-export async function GET(request: NextRequest) {
-  const supabase = await createClient();
-  const q = request.nextUrl.searchParams.get("q")?.trim();
-
-  let query = supabase
-    .from("checklists")
-    .select("*")
-    .order("id", { ascending: false })
-    .limit(200);
-
-  if (q) {
-    query = query.or(
-      `cliente_nome.ilike.%${q}%,veiculo_placa.ilike.%${q}%,veiculo_modelo.ilike.%${q}%`
-    );
-  }
-
-  const { data, error } = await query;
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-
-  return NextResponse.json(data);
-}
+// GET removido: nada no app consumia esta rota. A busca do quadro é um
+// <form method="get"> que recarrega a página, e a listagem vem do server
+// component em app/(oficina)/page.tsx. Uma rota que ninguém chama é só
+// superfície de ataque a mais.
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
-  const body = (await request.json()) as ChecklistInput;
+
+  const body = (await request.json().catch(() => null)) as ChecklistInput | null;
+  if (!body || typeof body !== "object") {
+    return NextResponse.json({ error: "Corpo da requisição inválido." }, { status: 400 });
+  }
 
   if (!body.cliente_nome?.trim() || !body.veiculo_placa?.trim() || !body.observacoes?.trim()) {
     return NextResponse.json(
@@ -34,6 +22,9 @@ export async function POST(request: NextRequest) {
       { status: 400 }
     );
   }
+
+  const excedeu = erroDeTamanho(body as unknown as Record<string, unknown>);
+  if (excedeu) return NextResponse.json({ error: excedeu }, { status: 400 });
 
   const { data, error } = await supabase
     .from("checklists")
@@ -60,7 +51,12 @@ export async function POST(request: NextRequest) {
     .select("id")
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  // a mensagem do Postgres fica no log do servidor: ela descreve colunas e
+  // constraints, e isso não precisa chegar ao navegador
+  if (error) {
+    console.error("POST /api/checklists", error);
+    return NextResponse.json({ error: "Não consegui salvar a O.S." }, { status: 500 });
+  }
 
   return NextResponse.json({ id: data.id }, { status: 201 });
 }

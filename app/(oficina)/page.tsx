@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { Checklist } from "@/lib/types";
+import { CAMPOS_RESUMO, ChecklistResumo } from "@/lib/types";
+import { filtroDeBusca } from "@/lib/busca";
 import Board from "./board";
 
 export default async function HomePage({
@@ -12,14 +13,17 @@ export default async function HomePage({
   const query = q?.trim();
 
   const supabase = await createClient();
-  let dbQuery = supabase.from("checklists").select("*").order("id", { ascending: false }).limit(300);
-  if (query) {
-    dbQuery = dbQuery.or(
-      `cliente_nome.ilike.%${query}%,veiculo_placa.ilike.%${query}%,veiculo_modelo.ilike.%${query}%`
-    );
-  }
+  // só as colunas que o cartão desenha: `select("*")` trazia observacoes e
+  // avarias inteiras das 300 O.S. para mostrar nome, placa e data
+  let dbQuery = supabase
+    .from("checklists")
+    .select(CAMPOS_RESUMO)
+    .order("id", { ascending: false })
+    .limit(300);
+  // o termo nunca entra cru no filtro — ver lib/busca.ts
+  if (query) dbQuery = dbQuery.or(filtroDeBusca(query));
   const { data } = await dbQuery;
-  const rows = (data ?? []) as Checklist[];
+  const rows = (data ?? []) as ChecklistResumo[];
 
   return (
     <main className="animate-fade-in flex min-h-0 flex-1 flex-col px-4 py-6 sm:px-8 sm:py-9">

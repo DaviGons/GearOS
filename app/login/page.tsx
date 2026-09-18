@@ -57,6 +57,17 @@ function LoginTabs() {
   );
 }
 
+/**
+ * O `next` chega pela URL. O proxy só escreve caminhos ali, mas nada impede
+ * alguém de mandar /login?next=https://site-falso.com e levar o usuário para
+ * fora logo depois de ele digitar a senha. Só caminho interno passa — e `//`
+ * fica de fora porque `//site.com` é URL absoluta sem protocolo.
+ */
+function destinoSeguro(next: string | null): string {
+  if (next && next.startsWith("/") && !next.startsWith("//")) return next;
+  return "/";
+}
+
 function OficinaForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -79,7 +90,7 @@ function OficinaForm() {
       return;
     }
 
-    router.replace(searchParams.get("next") || "/");
+    router.replace(destinoSeguro(searchParams.get("next")));
     router.refresh();
   }
 

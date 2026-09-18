@@ -14,9 +14,15 @@ Sistema de checklist de entrada / ordem de serviço para oficinas mecânicas. Ne
 
 3. Rode o schema no Supabase (SQL Editor) usando `supabase/schema.sql` — se o banco já existir, aplique as migrações em `supabase/migrations/` na ordem.
 
-4. Crie um usuário em Authentication → Users no painel do Supabase para fazer login.
+4. Crie um usuário em Authentication → Users no painel do Supabase e **libere-o na
+   tabela `oficina_equipe`** (o comando está no rodapé do `schema.sql`). Estar logado
+   não basta: as policies exigem estar nessa lista.
 
-5. Inicie o servidor de desenvolvimento:
+5. Em Authentication → Sign In / Providers, **desligue "Allow new users to sign up"**.
+   A `anon key` fica visível no bundle do navegador — com o cadastro aberto, qualquer
+   pessoa cria conta e passa a ser um usuário autenticado do projeto.
+
+6. Inicie o servidor de desenvolvimento:
 
    ```bash
    npm run dev

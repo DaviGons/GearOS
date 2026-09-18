@@ -18,26 +18,34 @@ export async function DELETE() {
     .eq("status", "entregue");
 
   if (erroBusca) {
-    return NextResponse.json({ error: erroBusca.message }, { status: 500 });
+    console.error("DELETE /api/checklists/entregues (busca)", erroBusca);
+    return NextResponse.json({ error: "Não consegui ler as O.S. entregues." }, { status: 500 });
   }
 
   if (!alvos || alvos.length === 0) {
     return NextResponse.json({ excluidas: 0 });
   }
 
-  // os anexos saem junto, senão ficariam ocupando espaço sem dono
-  const anexos = alvos.flatMap((linha) => (linha.fotos as string[] | null) ?? []);
-  if (anexos.length > 0) {
-    await supabase.storage.from(BUCKET_ANEXOS).remove(anexos);
-  }
-
+  // As linhas saem primeiro. Antes os anexos eram removidos antes do DELETE:
+  // se o DELETE falhasse no meio, as O.S. continuavam no quadro com todas as
+  // fotos já apagadas do bucket — e não há como trazer de volta.
   const { data: apagadas, error } = await supabase
     .from("checklists")
     .delete()
     .eq("status", "entregue")
-    .select("id");
+    .select("id, fotos");
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) {
+    console.error("DELETE /api/checklists/entregues", error);
+    return NextResponse.json({ error: "Não consegui excluir as O.S. entregues." }, { status: 500 });
+  }
+
+  // só os anexos das O.S. que realmente saíram, senão ficariam ocupando
+  // espaço sem dono
+  const anexos = (apagadas ?? []).flatMap((linha) => (linha.fotos as string[] | null) ?? []);
+  if (anexos.length > 0) {
+    await supabase.storage.from(BUCKET_ANEXOS).remove(anexos);
+  }
 
   return NextResponse.json({ excluidas: apagadas?.length ?? 0 });
 }

@@ -19,16 +19,11 @@ setInterval(() => {
   }
 }, 5 * 60 * 1000).unref?.();
 
-export function checkRateLimit(
-  request: NextRequest,
-  routeKey: string,
+/** Consome uma ficha de uma chave qualquer. Devolve false quando estourou. */
+export function checkRateLimitChave(
+  key: string,
   { limit, windowMs }: { limit: number; windowMs: number }
 ): boolean {
-  const ip =
-    request.headers.get("x-forwarded-for")?.split(",")[0].trim() ||
-    request.headers.get("x-real-ip") ||
-    "unknown";
-  const key = `${routeKey}:${ip}`;
   const now = Date.now();
 
   const bucket = buckets.get(key);
@@ -41,4 +36,16 @@ export function checkRateLimit(
 
   bucket.count += 1;
   return true;
+}
+
+export function checkRateLimit(
+  request: NextRequest,
+  routeKey: string,
+  opcoes: { limit: number; windowMs: number }
+): boolean {
+  const ip =
+    request.headers.get("x-forwarded-for")?.split(",")[0].trim() ||
+    request.headers.get("x-real-ip") ||
+    "unknown";
+  return checkRateLimitChave(`${routeKey}:${ip}`, opcoes);
 }
