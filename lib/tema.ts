@@ -8,12 +8,12 @@ import { CORES } from "./brand";
 export type Tema = "claro" | "escuro" | "sistema";
 
 /** Só o que o usuário escolheu na mão, já resolvido para uma das duas telas. */
-export type TemaResolvido = "claro" | "escuro";
+type TemaResolvido = "claro" | "escuro";
 
 export const CHAVE_TEMA = "gearos:tema";
 
 /** Cor da barra do navegador no celular, por tema. */
-export const COR_DA_BARRA: Record<TemaResolvido, string> = {
+const COR_DA_BARRA: Record<TemaResolvido, string> = {
   claro: CORES.fundo,
   escuro: "#1a1a1a",
 };
@@ -39,7 +39,7 @@ aplicar();
 mq.addEventListener("change",aplicar);
 }catch(e){}})();`;
 
-export function resolverTema(tema: Tema): TemaResolvido {
+function resolverTema(tema: Tema): TemaResolvido {
   if (tema === "claro" || tema === "escuro") return tema;
   return matchMedia("(prefers-color-scheme: dark)").matches ? "escuro" : "claro";
 }

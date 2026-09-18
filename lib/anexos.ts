@@ -45,7 +45,7 @@ export function nomeDoAnexo(caminho: string) {
  * Deixa o nome seguro como chave do Storage: sem acento, sem espaço, sem
  * caractere que precise de escape na URL. O Supabase rejeita boa parte deles.
  */
-export function sanitizarNome(nome: string) {
+function sanitizarNome(nome: string) {
   const limpo = nome
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
@@ -55,11 +55,11 @@ export function sanitizarNome(nome: string) {
   return (limpo || "arquivo").slice(-80);
 }
 
-export function caminhoAnexo(checklistId: number, nomeArquivo: string) {
+function caminhoAnexo(checklistId: number, nomeArquivo: string) {
   return `${checklistId}/${crypto.randomUUID()}-${sanitizarNome(nomeArquivo)}`;
 }
 
-export type ResultadoValidacao = {
+type ResultadoValidacao = {
   aceitos: File[];
   erro: string | null;
 };

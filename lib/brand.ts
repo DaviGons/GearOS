@@ -24,7 +24,7 @@ export const HEXAGONO = "58 32 45 54.52 19 54.52 6 32 19 9.48 45 9.48";
 export const CHECK = "M23.5 32.5 L29.5 38.5 L41 24";
 
 /** A marca como string SVG (viewBox 0 0 64 64), para uso fora do React. */
-export function markSvg({
+function markSvg({
   traco = CORES.tinta,
   destaque = CORES.vermelho,
   espessura = 4.5,
