@@ -31,11 +31,57 @@
   --danger: #b3352b;
   --danger-foreground: #fffdfa;
 
+  /* cor das sombras: nunca o --foreground, que no escuro é claro */
+  --sombra: #2b2522;
+
   /* cores de status do quadro, na ordem do fluxo da oficina */
   --status-recebido: #b06a1f;
   --status-andamento: #b3352b;
   --status-finalizado: #4f7a2e;
   --status-entregue: #8a817b;
+}
+
+/*
+ * Modo escuro: a mesma paleta virada do avesso. A tinta vira quase branco e o
+ * areia vira cinza neutro — sem o calor do tema claro, porque um cinza
+ * amarelado em tela escura parece sujeira, não aconchego. O único croma que
+ * sobra é o vermelho, clareado o suficiente para continuar legível; nele o
+ * texto passa a ser escuro, como manda qualquer tema escuro decente.
+ *
+ * O atributo é escrito pelo SCRIPT_DO_TEMA (lib/tema.ts) antes da primeira
+ * pintura, tanto para a escolha manual quanto para "acompanhar o sistema".
+ */
+:root[data-tema="escuro"] {
+  color-scheme: dark;
+
+  --background: #1a1a1a;
+  --surface: #232323;
+  --surface-hover: #2d2d2d;
+  --foreground: #efefef;
+  --muted: #9b9b9b;
+
+  --border: #333333;
+  --border-hover: #474747;
+
+  --primary: #efefef;
+  --primary-hover: #d6d6d6;
+  --primary-foreground: #1a1a1a;
+
+  --accent: #dd5f52;
+  --accent-foreground: #1a1a1a;
+
+  --attention: #d9973f;
+  --attention-foreground: #1a1a1a;
+
+  --danger: #dd5f52;
+  --danger-foreground: #1a1a1a;
+
+  --sombra: #000000;
+
+  --status-recebido: #d9973f;
+  --status-andamento: #dd5f52;
+  --status-finalizado: #7fb04e;
+  --status-entregue: #9b9b9b;
 }
 
 @theme inline {
@@ -60,6 +106,8 @@
 
   --color-danger: var(--danger);
   --color-danger-foreground: var(--danger-foreground);
+
+  --color-sombra: var(--sombra);
 
   --color-status-recebido: var(--status-recebido);
   --color-status-andamento: var(--status-andamento);
@@ -113,13 +161,37 @@ textarea,
 }
 
 @media print {
-  /* O tema já é claro, então a impressão só precisa tirar o fundo de areia e
-     os relevos de tela. */
-  :root {
+  /* Papel é branco: a impressão sempre sai no tema claro, mesmo que a tela
+     esteja no escuro — senão o texto sai branco sobre branco. */
+  :root,
+  :root[data-tema="escuro"] {
+    color-scheme: light;
+
     --background: #ffffff;
     --surface: #ffffff;
     --surface-hover: #ffffff;
+    --foreground: #2b2522;
+    --muted: #6b635e;
+
     --border: #d4d4d4;
+    --border-hover: #d4d4d4;
+
+    --primary: #2b2522;
+    --primary-foreground: #ffffff;
+
+    --accent: #b3352b;
+    --accent-foreground: #ffffff;
+
+    --attention: #8a5115;
+    --attention-foreground: #ffffff;
+
+    --danger: #b3352b;
+    --danger-foreground: #ffffff;
+
+    --status-recebido: #8a5115;
+    --status-andamento: #b3352b;
+    --status-finalizado: #3d5f24;
+    --status-entregue: #6b635e;
   }
 
   body {

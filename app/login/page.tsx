@@ -22,7 +22,7 @@ function LoginTabs() {
 
   return (
     <main className="flex flex-1 items-center justify-center px-4">
-      <div className="animate-fade-in w-full max-w-sm rounded-xl border border-border bg-surface p-6 shadow-foreground/5">
+      <div className="animate-fade-in w-full max-w-sm rounded-xl border border-border bg-surface p-6 shadow-sombra/5">
         <h1 className="mb-1.5">
           <Logo size="md" />
         </h1>

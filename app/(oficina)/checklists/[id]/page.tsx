@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Checklist } from "@/lib/types";
 import { BUCKET_ANEXOS } from "@/lib/anexos";
-import PrintButton from "./print-button";
 import DeleteButton from "./delete-button";
 import ChecklistEditor from "./checklist-editor";
 import type { Anexo } from "./anexos";
@@ -48,7 +47,6 @@ export default async function ChecklistPage({
         </Link>
         <div className="flex items-center gap-3">
           <DeleteButton id={checklist.id} />
-          <PrintButton />
         </div>
       </div>
 

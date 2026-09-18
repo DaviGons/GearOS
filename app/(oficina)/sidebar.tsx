@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Logo } from "../logo";
 import LogoutButton from "./logout-button";
+import SeletorDeTema from "./seletor-de-tema";
 
 type Item = {
   href: string;
@@ -143,7 +144,8 @@ export default function Sidebar({ aoNavegar }: { aoNavegar?: () => void }) {
         ))}
       </div>
 
-      <div className="mt-auto border-t border-border pt-3">
+      <div className="mt-auto flex flex-col gap-2 border-t border-border pt-3">
+        <SeletorDeTema />
         <LogoutButton />
       </div>
     </div>

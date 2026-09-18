@@ -25,7 +25,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
             type="button"
             aria-label="Fechar menu"
             onClick={() => setGavetaAberta(false)}
-            className="absolute inset-0 bg-foreground/25"
+            className="absolute inset-0 bg-sombra/40"
           />
           <div className="animate-fade-in absolute inset-y-0 left-0 w-60 border-r border-border bg-surface shadow-xl">
             <Sidebar aoNavegar={() => setGavetaAberta(false)} />

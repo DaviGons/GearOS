@@ -234,7 +234,7 @@ function CardContent({ row, dragging }: { row: Checklist; dragging?: boolean }) 
   return (
     <div
       className={`cursor-grab rounded-lg border border-border bg-surface p-2.5 active:cursor-grabbing hover:border-border-hover ${
-        dragging ? "rotate-2 shadow-lg shadow-foreground/15" : ""
+        dragging ? "rotate-2 shadow-lg shadow-sombra/15" : ""
       }`}
     >
       <div className="mb-1 flex items-start justify-between gap-2">
