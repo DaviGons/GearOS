@@ -10,10 +10,10 @@
 // literais porque os PNGs são gerados fora do navegador, sem CSS.
 
 export const CORES = {
-  fundo: "#f7f4ef", // areia clara
-  tinta: "#2b2522", // marrom quase preto
-  vermelho: "#b3352b", // o detalhe
-  muted: "#8a817b",
+  fundo: "#f2f4f7", // azulejo
+  tinta: "#15202b", // marinho quase preto
+  verde: "#1f9d5c", // o check: "tudo certo"
+  muted: "#5b6878",
 } as const;
 
 // A marca é uma porca sextavada vista de frente, com lado plano em cima —
@@ -26,7 +26,7 @@ export const CHECK = "M23.5 32.5 L29.5 38.5 L41 24";
 /** A marca como string SVG (viewBox 0 0 64 64), para uso fora do React. */
 function markSvg({
   traco = CORES.tinta,
-  destaque = CORES.vermelho,
+  destaque = CORES.verde,
   espessura = 4.5,
   fundo,
 }: {

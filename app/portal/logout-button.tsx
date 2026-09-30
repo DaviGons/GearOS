@@ -12,7 +12,10 @@ export default function PortalLogoutButton() {
   }
 
   return (
-    <button onClick={handleLogout} className="text-sm text-muted hover:text-foreground">
+    <button
+      onClick={handleLogout}
+      className="rounded-xl px-3 py-2 text-sm font-medium text-muted hover:bg-surface-hover hover:text-foreground"
+    >
       Sair
     </button>
   );

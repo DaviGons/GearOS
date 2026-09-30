@@ -21,39 +21,78 @@ function LoginTabs() {
   );
 
   return (
-    <main className="flex flex-1 items-center justify-center px-4">
-      <div className="animate-fade-in w-full max-w-sm rounded-xl border border-border bg-surface p-6 shadow-sombra/5">
-        <h1 className="mb-1.5">
-          <Logo size="md" />
+    <main className="flex flex-1 flex-col items-center justify-center px-4 py-10">
+      <div className="w-full max-w-sm">
+        <h1 className="mb-6 flex justify-center">
+          <Logo size="lg" />
         </h1>
-        <p className="mb-5 text-sm text-muted">
-          {tab === "oficina" ? "Entre para acessar o sistema da oficina" : "Acompanhe o seu veículo"}
-        </p>
 
-        <div className="mb-5 grid grid-cols-2 rounded-lg border border-border bg-background p-1 text-sm">
-          <button
-            type="button"
-            onClick={() => setTab("oficina")}
-            className={`rounded-md py-1.5 font-medium ${
-              tab === "oficina" ? "bg-primary text-primary-foreground" : "text-muted hover:text-foreground"
-            }`}
+        <div className="rounded-2xl border border-border bg-surface p-6 shadow-sm shadow-sombra/5 sm:p-7">
+          <div
+            role="tablist"
+            aria-label="Tipo de acesso"
+            className="mb-6 grid grid-cols-2 rounded-xl border border-border bg-background p-1 text-[15px]"
           >
-            Sou da oficina
-          </button>
-          <button
-            type="button"
-            onClick={() => setTab("cliente")}
-            className={`rounded-md py-1.5 font-medium ${
-              tab === "cliente" ? "bg-primary text-primary-foreground" : "text-muted hover:text-foreground"
-            }`}
-          >
-            Sou cliente
-          </button>
+            <Aba ativa={tab === "cliente"} onClick={() => setTab("cliente")}>
+              Sou cliente
+            </Aba>
+            <Aba ativa={tab === "oficina"} onClick={() => setTab("oficina")}>
+              Sou da oficina
+            </Aba>
+          </div>
+
+          <h2 className="font-display text-2xl font-semibold leading-tight text-foreground">
+            {tab === "oficina" ? "Entrar na oficina" : "Acompanhe seu carro"}
+          </h2>
+          <p className="mb-5 mt-1 text-sm text-muted">
+            {tab === "oficina"
+              ? "Use o e-mail e a senha da sua conta na equipe."
+              : "Veja em que etapa está o serviço, sem precisar ligar para a oficina."}
+          </p>
+
+          {tab === "oficina" ? <OficinaForm /> : <ClienteForm />}
         </div>
-
-        {tab === "oficina" ? <OficinaForm /> : <ClienteForm />}
       </div>
     </main>
+  );
+}
+
+function Aba({
+  ativa,
+  onClick,
+  children,
+}: {
+  ativa: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      role="tab"
+      aria-selected={ativa}
+      onClick={onClick}
+      className={`rounded-lg py-2 font-semibold ${
+        ativa ? "bg-surface text-foreground shadow-sm shadow-sombra/10" : "text-muted hover:text-foreground"
+      }`}
+    >
+      {children}
+    </button>
+  );
+}
+
+// 16px no celular: abaixo disso o Safari do iPhone dá zoom ao focar o campo
+const CAMPO =
+  "w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-base text-foreground placeholder:text-muted/70 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 sm:text-sm";
+
+const BOTAO =
+  "w-full rounded-xl bg-primary px-4 py-3 text-[15px] font-semibold text-primary-foreground hover:bg-primary-hover disabled:opacity-60";
+
+function Erro({ children }: { children: React.ReactNode }) {
+  return (
+    <div role="alert" className="rounded-xl border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger">
+      {children}
+    </div>
   );
 }
 
@@ -96,39 +135,33 @@ function OficinaForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      {error && (
-        <div className="rounded-lg border border-danger/30 bg-danger/10 px-3 py-2 text-sm text-danger">
-          {error}
-        </div>
-      )}
+      {error && <Erro>{error}</Erro>}
 
       <label className="block">
-        <span className="mb-1 block text-xs font-medium text-muted">E-mail</span>
+        <span className="mb-1.5 block text-sm font-medium text-foreground">E-mail</span>
         <input
           type="email"
           required
+          autoComplete="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
+          className={CAMPO}
         />
       </label>
 
       <label className="block">
-        <span className="mb-1 block text-xs font-medium text-muted">Senha</span>
+        <span className="mb-1.5 block text-sm font-medium text-foreground">Senha</span>
         <input
           type="password"
           required
+          autoComplete="current-password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
+          className={CAMPO}
         />
       </label>
 
-      <button
-        type="submit"
-        disabled={loading}
-        className="w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary-hover disabled:opacity-50"
-      >
+      <button type="submit" disabled={loading} className={BOTAO}>
         {loading ? "Entrando..." : "Entrar"}
       </button>
     </form>
@@ -169,27 +202,36 @@ function ClienteForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      {error && (
-        <div className="rounded-lg border border-danger/30 bg-danger/10 px-3 py-2 text-sm text-danger">
-          {error}
-        </div>
-      )}
+      {error && <Erro>{error}</Erro>}
 
+      {/* o campo é a própria placa: quem chega aqui olha para o carro, não
+          para um formulário, e reconhece o formato na hora */}
       <label className="block">
-        <span className="mb-1 block text-xs font-medium text-muted">Placa do veículo</span>
-        <input
-          type="text"
-          required
-          value={placa}
-          onChange={(e) => setPlaca(e.target.value)}
-          placeholder="ABC1D23"
-          className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm uppercase text-foreground focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
-        />
+        <span className="mb-1.5 block text-sm font-medium text-foreground">Placa do carro</span>
+        <span className="flex flex-col overflow-hidden rounded-lg border-2 border-placa-texto/80 bg-placa-fundo focus-within:ring-4 focus-within:ring-accent/30">
+          <span
+            aria-hidden="true"
+            className="flex h-4 items-center justify-center bg-placa-faixa font-display text-[10px] font-semibold tracking-[0.3em] text-white"
+          >
+            BRASIL
+          </span>
+          <input
+            type="text"
+            required
+            value={placa}
+            onChange={(e) => setPlaca(e.target.value.toUpperCase())}
+            autoCapitalize="characters"
+            autoComplete="off"
+            maxLength={8}
+            placeholder="ABC1D23"
+            className="w-full bg-transparent py-1.5 text-center font-display text-[28px] font-medium uppercase leading-10 tracking-[0.06em] text-placa-texto placeholder:text-placa-texto/25 focus:outline-none"
+          />
+        </span>
       </label>
 
       <label className="block">
-        <span className="mb-1 block text-xs font-medium text-muted">
-          4 últimos dígitos do seu telefone
+        <span className="mb-1.5 block text-sm font-medium text-foreground">
+          Últimos 4 números do seu telefone
         </span>
         <input
           type="tel"
@@ -199,21 +241,16 @@ function ClienteForm() {
           value={telefone}
           onChange={(e) => setTelefone(e.target.value.replace(/\D/g, "").slice(0, 4))}
           placeholder="0000"
-          className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
+          className={`${CAMPO} text-center text-lg tracking-[0.4em] sm:text-lg`}
         />
+        <span className="mt-1.5 block text-xs text-muted">
+          O mesmo telefone que você deixou na recepção.
+        </span>
       </label>
 
-      <button
-        type="submit"
-        disabled={loading}
-        className="w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary-hover disabled:opacity-50"
-      >
-        {loading ? "Buscando..." : "Ver status do veículo"}
+      <button type="submit" disabled={loading} className={BOTAO}>
+        {loading ? "Procurando seu carro..." : "Ver meu carro"}
       </button>
-
-      <p className="text-center text-xs text-muted">
-        Esses dados foram informados por você na recepção da oficina.
-      </p>
     </form>
   );
 }

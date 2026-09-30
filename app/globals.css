@@ -1,52 +1,58 @@
 @import "tailwindcss";
 
 /*
- * Paleta quente e neutra: fundo de areia, tinta marrom-escura e o vermelho
- * guardado só para detalhe (foco, estado ativo, ação destrutiva, o check da
- * marca). Botão principal usa a tinta, não o vermelho — vermelho demais deixa
- * de ser destaque.
+ * A oficina por dentro: fundo de azulejo, tinta azul-marinho quase preta e o
+ * azul do macacão como cor de ação. As cores dos status são as das etiquetas
+ * de chave penduradas no quadro da recepção — mostarda, azul, verde, cinza —
+ * e aparecem sempre lavadas no fundo, cheias só no detalhe.
  */
 :root {
   color-scheme: light;
 
-  --background: #f7f4ef;
-  --surface: #fffdfa;
-  --surface-hover: #f1ece3;
-  --foreground: #2b2522;
-  --muted: #8a817b;
+  --background: #f2f4f7;
+  --surface: #ffffff;
+  --surface-hover: #eaeef3;
+  --foreground: #15202b;
+  --muted: #5b6878;
 
-  --border: #e5ded3;
-  --border-hover: #d3c9ba;
+  --border: #dae0e7;
+  --border-hover: #bfc9d4;
 
-  --primary: #2b2522;
-  --primary-hover: #423a35;
-  --primary-foreground: #f7f4ef;
+  --primary: #1f4e8c;
+  --primary-hover: #173e71;
+  --primary-foreground: #ffffff;
 
-  --accent: #b3352b;
-  --accent-foreground: #fffdfa;
+  --accent: #2462b5;
+  --accent-foreground: #ffffff;
 
-  --attention: #b06a1f;
-  --attention-foreground: #fffdfa;
+  --attention: #a36f00;
+  --attention-foreground: #ffffff;
 
-  --danger: #b3352b;
-  --danger-foreground: #fffdfa;
+  --danger: #c23b30;
+  --danger-foreground: #ffffff;
+
+  /* o check verde da marca: é o "tudo certo" da oficina */
+  --marca: #1f9d5c;
 
   /* cor das sombras: nunca o --foreground, que no escuro é claro */
-  --sombra: #2b2522;
+  --sombra: #15202b;
 
   /* cores de status do quadro, na ordem do fluxo da oficina */
-  --status-recebido: #b06a1f;
-  --status-andamento: #b3352b;
-  --status-finalizado: #4f7a2e;
-  --status-entregue: #8a817b;
+  --status-recebido: #a36f00;
+  --status-andamento: #2462b5;
+  --status-finalizado: #1c7c4d;
+  --status-entregue: #6b7684;
+
+  /* a placa Mercosul é um objeto físico: igual nos dois temas */
+  --placa-fundo: #ffffff;
+  --placa-texto: #111418;
+  --placa-faixa: #003399;
 }
 
 /*
- * Modo escuro: a mesma paleta virada do avesso. A tinta vira quase branco e o
- * areia vira cinza neutro — sem o calor do tema claro, porque um cinza
- * amarelado em tela escura parece sujeira, não aconchego. O único croma que
- * sobra é o vermelho, clareado o suficiente para continuar legível; nele o
- * texto passa a ser escuro, como manda qualquer tema escuro decente.
+ * Modo escuro: a oficina à noite. O fundo é o mesmo marinho da tinta, bem
+ * fechado, e as cores ganham luz para continuar legíveis — no botão principal
+ * o texto passa a ser escuro sobre azul claro.
  *
  * O atributo é escrito pelo SCRIPT_DO_TEMA (lib/tema.ts) antes da primeira
  * pintura, tanto para a escolha manual quanto para "acompanhar o sistema".
@@ -54,34 +60,36 @@
 :root[data-tema="escuro"] {
   color-scheme: dark;
 
-  --background: #1a1a1a;
-  --surface: #232323;
-  --surface-hover: #2d2d2d;
-  --foreground: #efefef;
-  --muted: #9b9b9b;
+  --background: #0f141b;
+  --surface: #171e27;
+  --surface-hover: #1f2833;
+  --foreground: #e6ebf1;
+  --muted: #93a0ae;
 
-  --border: #333333;
-  --border-hover: #474747;
+  --border: #27313d;
+  --border-hover: #3a4654;
 
-  --primary: #efefef;
-  --primary-hover: #d6d6d6;
-  --primary-foreground: #1a1a1a;
+  --primary: #7eb0f2;
+  --primary-hover: #a3c7f6;
+  --primary-foreground: #0f141b;
 
-  --accent: #dd5f52;
-  --accent-foreground: #1a1a1a;
+  --accent: #7eb0f2;
+  --accent-foreground: #0f141b;
 
-  --attention: #d9973f;
-  --attention-foreground: #1a1a1a;
+  --attention: #e9b44c;
+  --attention-foreground: #0f141b;
 
-  --danger: #dd5f52;
-  --danger-foreground: #1a1a1a;
+  --danger: #ef7a6e;
+  --danger-foreground: #0f141b;
+
+  --marca: #4cc38a;
 
   --sombra: #000000;
 
-  --status-recebido: #d9973f;
-  --status-andamento: #dd5f52;
-  --status-finalizado: #7fb04e;
-  --status-entregue: #9b9b9b;
+  --status-recebido: #e9b44c;
+  --status-andamento: #7eb0f2;
+  --status-finalizado: #5cc795;
+  --status-entregue: #93a0ae;
 }
 
 @theme inline {
@@ -107,6 +115,7 @@
   --color-danger: var(--danger);
   --color-danger-foreground: var(--danger-foreground);
 
+  --color-marca: var(--marca);
   --color-sombra: var(--sombra);
 
   --color-status-recebido: var(--status-recebido);
@@ -114,41 +123,56 @@
   --color-status-finalizado: var(--status-finalizado);
   --color-status-entregue: var(--status-entregue);
 
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-placa-fundo: var(--placa-fundo);
+  --color-placa-texto: var(--placa-texto);
+  --color-placa-faixa: var(--placa-faixa);
+
+  /* Uma família só: Rubik, de largura normal e cantos levemente
+     arredondados. Títulos, números de O.S. e placas usam a mesma letra e se
+     separam do texto pelo peso. O token "display" fica para o dia em que os
+     títulos ganharem uma fonte própria — hoje aponta para a mesma. */
+  --font-sans: var(--font-rubik);
+  --font-display: var(--font-rubik);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-family: var(--font-rubik), system-ui, sans-serif;
 }
 
-/* transições suaves e discretas em todo o app */
+/* resposta ao toque e ao clique; nada se mexe sozinho */
 a,
 button,
 input,
 select,
-textarea,
-[class*="transition"] {
-  transition-property: color, background-color, border-color, box-shadow, opacity, transform;
-  transition-duration: 160ms;
+textarea {
+  transition-property: color, background-color, border-color, box-shadow, opacity;
+  transition-duration: 140ms;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-@keyframes fade-in {
+/* foco visível em tudo que se alcança pelo teclado */
+:where(a, button, [role="button"], summary):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+@keyframes gaveta-entra {
   from {
+    transform: translateX(-12px);
     opacity: 0;
-    transform: translateY(4px);
   }
   to {
+    transform: translateX(0);
     opacity: 1;
-    transform: translateY(0);
   }
 }
 
-.animate-fade-in {
-  animation: fade-in 260ms cubic-bezier(0.4, 0, 0.2, 1) both;
+/* só a gaveta do menu anima: é a resposta ao toque no botão */
+.animate-gaveta {
+  animation: gaveta-entra 200ms cubic-bezier(0.4, 0, 0.2, 1) both;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -170,28 +194,30 @@ textarea,
     --background: #ffffff;
     --surface: #ffffff;
     --surface-hover: #ffffff;
-    --foreground: #2b2522;
-    --muted: #6b635e;
+    --foreground: #15202b;
+    --muted: #4f5b69;
 
-    --border: #d4d4d4;
-    --border-hover: #d4d4d4;
+    --border: #cfd6de;
+    --border-hover: #cfd6de;
 
-    --primary: #2b2522;
+    --primary: #1f4e8c;
     --primary-foreground: #ffffff;
 
-    --accent: #b3352b;
+    --accent: #1f4e8c;
     --accent-foreground: #ffffff;
 
-    --attention: #8a5115;
+    --attention: #8a5d00;
     --attention-foreground: #ffffff;
 
     --danger: #b3352b;
     --danger-foreground: #ffffff;
 
-    --status-recebido: #8a5115;
-    --status-andamento: #b3352b;
-    --status-finalizado: #3d5f24;
-    --status-entregue: #6b635e;
+    --marca: #1c7c4d;
+
+    --status-recebido: #8a5d00;
+    --status-andamento: #1f4e8c;
+    --status-finalizado: #1c7c4d;
+    --status-entregue: #4f5b69;
   }
 
   body {

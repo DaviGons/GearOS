@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Checklist } from "@/lib/types";
+import { OrdemDeServico } from "@/lib/types";
 import { fetchComRetry } from "@/lib/fetch-retry";
 
-export default function CadastroForm({ checklist }: { checklist: Checklist }) {
+export default function CadastroForm({ os }: { os: OrdemDeServico }) {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -44,27 +44,29 @@ export default function CadastroForm({ checklist }: { checklist: Checklist }) {
     }
   }
 
-  const veiculoNome = [checklist.veiculo_marca, checklist.veiculo_modelo]
+  const veiculoNome = [os.veiculo_marca, os.veiculo_modelo]
     .filter(Boolean)
     .join(" ") || "veículo";
 
   return (
-    <div className="animate-fade-in rounded-lg border border-border bg-surface p-6">
-      <h1 className="text-xl font-bold text-foreground">Complete seu cadastro</h1>
-      <p className="mt-1 text-sm text-muted">
-        Antes de ver o status do seu {veiculoNome} (placa {checklist.veiculo_placa}), precisamos
-        confirmar seus dados.
+    <div className="rounded-2xl border border-border bg-surface p-5 sm:p-7">
+      <h1 className="font-display text-3xl font-semibold leading-tight text-foreground">
+        Falta pouco
+      </h1>
+      <p className="mt-1.5 text-[15px] text-muted">
+        Confirme seus dados uma vez e já mostramos como está o seu {veiculoNome}, placa{" "}
+        {os.veiculo_placa}.
       </p>
 
       <form onSubmit={handleSubmit} className="mt-6 space-y-4">
         {error && (
-          <div className="rounded-lg border border-danger/30 bg-danger/10 px-3 py-2 text-sm text-danger">
+          <div role="alert" className="rounded-xl border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger">
             {error}
           </div>
         )}
 
         <Field label="Nome completo *">
-          <Input name="cliente_nome" required defaultValue={checklist.cliente_nome} />
+          <Input name="cliente_nome" required defaultValue={os.cliente_nome} />
         </Field>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -74,16 +76,17 @@ export default function CadastroForm({ checklist }: { checklist: Checklist }) {
               required
               inputMode="numeric"
               placeholder="000.000.000-00"
-              defaultValue={checklist.cliente_cpf ?? ""}
+              defaultValue={os.cliente_cpf ?? ""}
             />
           </Field>
           <Field label="Telefone com DDD *">
             <Input
               name="cliente_telefone"
               required
-              inputMode="numeric"
-              placeholder="11922223333"
-              defaultValue={checklist.cliente_telefone ?? ""}
+              type="tel"
+              inputMode="tel"
+              placeholder="(11) 91234-5678"
+              defaultValue={os.cliente_telefone ?? ""}
             />
           </Field>
         </div>
@@ -93,7 +96,7 @@ export default function CadastroForm({ checklist }: { checklist: Checklist }) {
             name="cliente_endereco"
             required
             placeholder="Rua, avenida..."
-            defaultValue={checklist.cliente_endereco ?? ""}
+            defaultValue={os.cliente_endereco ?? ""}
           />
         </Field>
 
@@ -104,23 +107,28 @@ export default function CadastroForm({ checklist }: { checklist: Checklist }) {
               required
               inputMode="numeric"
               placeholder="00000-000"
-              defaultValue={checklist.cliente_cep ?? ""}
+              defaultValue={os.cliente_cep ?? ""}
             />
           </Field>
           <Field label="Número *">
-            <Input name="cliente_numero" required defaultValue={checklist.cliente_numero ?? ""} />
+            <Input name="cliente_numero" required defaultValue={os.cliente_numero ?? ""} />
           </Field>
           <Field label="Complemento">
-            <Input name="cliente_complemento" defaultValue={checklist.cliente_complemento ?? ""} />
+            <Input name="cliente_complemento" defaultValue={os.cliente_complemento ?? ""} />
           </Field>
         </div>
+
+        <p className="text-xs text-muted">
+          Depois de salvos, os dados só mudam pela oficina. O telefone passa a ser a sua senha
+          para entrar aqui.
+        </p>
 
         <button
           type="submit"
           disabled={saving}
-          className="w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary-hover disabled:opacity-50"
+          className="w-full rounded-xl bg-primary px-4 py-3 text-[15px] font-semibold text-primary-foreground hover:bg-primary-hover disabled:opacity-60"
         >
-          {saving ? "Salvando..." : "Salvar e continuar"}
+          {saving ? "Salvando..." : "Salvar e ver meu carro"}
         </button>
       </form>
     </div>
@@ -130,7 +138,7 @@ export default function CadastroForm({ checklist }: { checklist: Checklist }) {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-xs font-medium text-muted">{label}</span>
+      <span className="mb-1.5 block text-sm font-medium text-foreground">{label}</span>
       {children}
     </label>
   );
@@ -140,7 +148,7 @@ function Input(props: React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <input
       {...props}
-      className={`w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 ${props.className ?? ""}`}
+      className={`w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-base text-foreground placeholder:text-muted/70 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 sm:text-sm ${props.className ?? ""}`}
     />
   );
 }

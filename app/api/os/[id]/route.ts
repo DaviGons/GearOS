@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { STATUS_ORDER, Status, TipoCombustivel } from "@/lib/types";
+import { STATUS_ORDER, Status, TipoCombustivel, TABELA_OS } from "@/lib/types";
 import { BUCKET_ANEXOS, EXTENSOES_ACEITAS, MAX_ANEXOS, extensaoDe } from "@/lib/anexos";
 import { erroDeTamanho } from "@/lib/validation";
 
@@ -14,13 +14,13 @@ export async function GET(
   const supabase = await createClient();
 
   const { data, error } = await supabase
-    .from("checklists")
+    .from(TABELA_OS)
     .select("*")
     .eq("id", id)
     .single();
 
   if (error || !data) {
-    return NextResponse.json({ error: "Checklist não encontrado." }, { status: 404 });
+    return NextResponse.json({ error: "O.S. não encontrada." }, { status: 404 });
   }
 
   return NextResponse.json(data);
@@ -165,25 +165,25 @@ export async function PATCH(
   const anteriores =
     body.fotos === undefined
       ? []
-      : ((await supabase.from("checklists").select("fotos").eq("id", id).maybeSingle()).data
+      : ((await supabase.from(TABELA_OS).select("fotos").eq("id", id).maybeSingle()).data
           ?.fotos as string[] | undefined) ?? [];
 
   const { data, error } = await supabase
-    .from("checklists")
+    .from(TABELA_OS)
     .update(update)
     .eq("id", id)
     .select("*")
     .maybeSingle();
 
   if (error) {
-    console.error("PATCH /api/checklists/[id]", error);
+    console.error("PATCH /api/os/[id]", error);
     return NextResponse.json({ error: "Não consegui salvar as alterações." }, { status: 500 });
   }
 
   // mesmo caso do DELETE: zero linhas atualizadas não é erro no banco, mas
   // também não é sucesso do ponto de vista de quem chamou
   if (!data) {
-    return NextResponse.json({ error: "Checklist não encontrado." }, { status: 404 });
+    return NextResponse.json({ error: "O.S. não encontrada." }, { status: 404 });
   }
 
   // Só depois de a gravação dar certo: o que saiu da lista é apagado do bucket,
@@ -204,7 +204,7 @@ export async function DELETE(
   const supabase = await createClient();
 
   const { data: row } = await supabase
-    .from("checklists")
+    .from(TABELA_OS)
     .select("fotos")
     .eq("id", id)
     .single();
@@ -213,13 +213,13 @@ export async function DELETE(
   // se o DELETE falhasse (ou a RLS barrasse) a O.S. continuava no quadro com
   // as fotos já destruídas — perda de dado sem volta em troca de nada.
   const { data: apagadas, error } = await supabase
-    .from("checklists")
+    .from(TABELA_OS)
     .delete()
     .eq("id", id)
     .select("id");
 
   if (error) {
-    console.error("DELETE /api/checklists/[id]", error);
+    console.error("DELETE /api/os/[id]", error);
     return NextResponse.json({ error: "Não consegui excluir a O.S." }, { status: 500 });
   }
 
@@ -228,7 +228,7 @@ export async function DELETE(
   // zero linhas e volta "sucesso". Sem conferir isso aqui, a rota responderia
   // ok para uma exclusão que nunca aconteceu.
   if (!apagadas || apagadas.length === 0) {
-    return NextResponse.json({ error: "Checklist não encontrado." }, { status: 404 });
+    return NextResponse.json({ error: "O.S. não encontrada." }, { status: 404 });
   }
 
   if (row?.fotos?.length) {

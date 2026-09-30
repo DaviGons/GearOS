@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { ChecklistInput } from "@/lib/types";
+import { OrdemDeServicoInput, TABELA_OS } from "@/lib/types";
 import { erroDeTamanho } from "@/lib/validation";
 
 // GET removido: nada no app consumia esta rota. A busca do quadro é um
@@ -11,7 +11,7 @@ import { erroDeTamanho } from "@/lib/validation";
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
 
-  const body = (await request.json().catch(() => null)) as ChecklistInput | null;
+  const body = (await request.json().catch(() => null)) as OrdemDeServicoInput | null;
   if (!body || typeof body !== "object") {
     return NextResponse.json({ error: "Corpo da requisição inválido." }, { status: 400 });
   }
@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
   if (excedeu) return NextResponse.json({ error: excedeu }, { status: 400 });
 
   const { data, error } = await supabase
-    .from("checklists")
+    .from(TABELA_OS)
     .insert({
       atendente: body.atendente ?? null,
       cliente_nome: body.cliente_nome.trim(),
@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
   // a mensagem do Postgres fica no log do servidor: ela descreve colunas e
   // constraints, e isso não precisa chegar ao navegador
   if (error) {
-    console.error("POST /api/checklists", error);
+    console.error("POST /api/os", error);
     return NextResponse.json({ error: "Não consegui salvar a O.S." }, { status: 500 });
   }
 

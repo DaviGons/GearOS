@@ -92,7 +92,7 @@ export default function SeletorDeTema() {
     <div
       role="group"
       aria-label="Tema da interface"
-      className="grid grid-cols-3 gap-0.5 rounded-lg border border-border bg-background p-0.5"
+      className="grid grid-cols-3 gap-0.5 rounded-xl border border-border bg-background p-1"
     >
       {OPCOES.map((opcao) => {
         const ativo = tema === opcao.valor;
@@ -103,7 +103,7 @@ export default function SeletorDeTema() {
             onClick={() => definirTema(opcao.valor)}
             aria-pressed={ativo}
             title={opcao.rotulo}
-            className={`flex items-center justify-center rounded-md py-1.5 ${
+            className={`flex items-center justify-center rounded-lg py-1.5 ${
               ativo
                 ? "bg-surface text-foreground shadow-sm shadow-sombra/10"
                 : "text-muted hover:text-foreground"

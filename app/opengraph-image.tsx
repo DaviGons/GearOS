@@ -59,7 +59,7 @@ export default function OpenGraphImage() {
             width: 96,
             height: 6,
             borderRadius: 3,
-            background: CORES.vermelho,
+            background: CORES.verde,
           }}
         />
       </div>

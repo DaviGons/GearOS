@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
+import { TABELA_OS } from "@/lib/types";
 import { createClient } from "@/lib/supabase/server";
 import { BUCKET_ANEXOS } from "@/lib/anexos";
 
 /**
  * Limpa o quadro: apaga de uma vez todas as O.S. com status "entregue".
  *
- * Esta rota fica em /api/checklists/entregues, antes de /api/checklists/[id]
+ * Esta rota fica em /api/os/entregues, antes de /api/os/[id]
  * na ordem de resolução do Next — segmento fixo ganha do dinâmico, então não
  * há risco de "entregues" ser lido como um id.
  */
@@ -13,12 +14,12 @@ export async function DELETE() {
   const supabase = await createClient();
 
   const { data: alvos, error: erroBusca } = await supabase
-    .from("checklists")
+    .from(TABELA_OS)
     .select("id, fotos")
     .eq("status", "entregue");
 
   if (erroBusca) {
-    console.error("DELETE /api/checklists/entregues (busca)", erroBusca);
+    console.error("DELETE /api/os/entregues (busca)", erroBusca);
     return NextResponse.json({ error: "Não consegui ler as O.S. entregues." }, { status: 500 });
   }
 
@@ -30,13 +31,13 @@ export async function DELETE() {
   // se o DELETE falhasse no meio, as O.S. continuavam no quadro com todas as
   // fotos já apagadas do bucket — e não há como trazer de volta.
   const { data: apagadas, error } = await supabase
-    .from("checklists")
+    .from(TABELA_OS)
     .delete()
     .eq("status", "entregue")
     .select("id, fotos");
 
   if (error) {
-    console.error("DELETE /api/checklists/entregues", error);
+    console.error("DELETE /api/os/entregues", error);
     return NextResponse.json({ error: "Não consegui excluir as O.S. entregues." }, { status: 500 });
   }
 

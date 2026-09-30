@@ -1,5 +1,8 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
+// Nome do bucket no Storage. Ficou da época em que o sistema era um checklist
+// de entrada: bucket não se renomeia no Supabase (seria copiar arquivo por
+// arquivo), então o nome antigo mora só aqui.
 export const BUCKET_ANEXOS = "checklist-fotos";
 
 export const MAX_ANEXOS = 20;
@@ -55,8 +58,8 @@ function sanitizarNome(nome: string) {
   return (limpo || "arquivo").slice(-80);
 }
 
-function caminhoAnexo(checklistId: number, nomeArquivo: string) {
-  return `${checklistId}/${crypto.randomUUID()}-${sanitizarNome(nomeArquivo)}`;
+function caminhoAnexo(osId: number, nomeArquivo: string) {
+  return `${osId}/${crypto.randomUUID()}-${sanitizarNome(nomeArquivo)}`;
 }
 
 type ResultadoValidacao = {
@@ -97,7 +100,7 @@ export function validarAnexos(
  */
 export async function enviarAnexos(
   supabase: SupabaseClient,
-  checklistId: number,
+  osId: number,
   arquivos: File[],
   aoProgredir?: (concluidos: number, total: number) => void
 ): Promise<{ caminhos: string[]; falhas: string[] }> {
@@ -112,7 +115,7 @@ export async function enviarAnexos(
       const item = fila.shift();
       if (!item) return;
 
-      const caminho = caminhoAnexo(checklistId, item.file.name);
+      const caminho = caminhoAnexo(osId, item.file.name);
       const { error } = await supabase.storage
         .from(BUCKET_ANEXOS)
         .upload(caminho, item.file, { contentType: item.file.type || undefined });

@@ -13,7 +13,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex min-h-full flex-1">
-      <aside className="hidden w-56 shrink-0 border-r border-border bg-surface md:block print:hidden">
+      <aside className="hidden w-60 shrink-0 border-r border-border bg-surface md:block print:hidden">
         <div className="sticky top-0 h-screen">
           <Sidebar />
         </div>
@@ -27,7 +27,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
             onClick={() => setGavetaAberta(false)}
             className="absolute inset-0 bg-sombra/40"
           />
-          <div className="animate-fade-in absolute inset-y-0 left-0 w-60 border-r border-border bg-surface shadow-xl">
+          <div className="animate-gaveta absolute inset-y-0 left-0 w-64 border-r border-border bg-surface shadow-xl">
             <Sidebar aoNavegar={() => setGavetaAberta(false)} />
           </div>
         </div>
@@ -39,7 +39,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
             type="button"
             onClick={() => setGavetaAberta(true)}
             aria-label="Abrir menu"
-            className="-ml-1 rounded-lg p-1.5 text-muted hover:bg-surface-hover hover:text-foreground"
+            className="-ml-1.5 rounded-xl p-2 text-muted hover:bg-surface-hover hover:text-foreground"
           >
             <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round">
               <path d="M4 7h16M4 12h16M4 17h16" />

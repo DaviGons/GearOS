@@ -10,7 +10,7 @@ type Item = {
   href: string;
   rotulo: string;
   icone: React.ReactNode;
-  /** casa também com as sub-rotas (ex.: /checklists/12) */
+  /** casa também com as sub-rotas (ex.: /os/12) */
   prefixo?: string;
 };
 
@@ -44,8 +44,8 @@ const ITENS: Item[] = [
     ),
   },
   {
-    href: "/checklists/novo",
-    rotulo: "Nova O.S.",
+    href: "/os/nova",
+    rotulo: "Receber veículo",
     icone: (
       <Icone>
         <path d="M12 5v14M5 12h14" />
@@ -99,7 +99,7 @@ export default function Sidebar({ aoNavegar }: { aoNavegar?: () => void }) {
   const pathname = usePathname();
 
   return (
-    <div className="flex h-full flex-col gap-6 px-3 py-5">
+    <div className="flex h-full flex-col gap-7 px-3 py-5">
       <Link href="/" onClick={aoNavegar} className="px-2">
         <Logo size="lg" />
       </Link>
@@ -114,9 +114,9 @@ export default function Sidebar({ aoNavegar }: { aoNavegar?: () => void }) {
               href={item.href}
               onClick={aoNavegar}
               aria-current={ativo ? "page" : undefined}
-              className={`flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm ${
+              className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] ${
                 ativo
-                  ? "bg-accent/8 font-medium text-accent"
+                  ? "bg-primary/10 font-semibold text-primary"
                   : "text-muted hover:bg-surface-hover hover:text-foreground"
               }`}
             >
@@ -128,15 +128,13 @@ export default function Sidebar({ aoNavegar }: { aoNavegar?: () => void }) {
       </nav>
 
       <div className="flex flex-col gap-0.5">
-        <p className="px-2.5 pb-1 text-[11px] font-medium uppercase tracking-wider text-muted/70">
-          Em breve
-        </p>
+        <p className="px-3 pb-1 text-xs font-medium text-muted">Em breve</p>
         {FUTUROS.map((item) => (
           <span
             key={item.rotulo}
             aria-disabled="true"
             title="Ainda não implementado"
-            className="flex cursor-default items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm text-muted/45"
+            className="flex cursor-default items-center gap-3 rounded-xl px-3 py-2 text-sm text-muted/55"
           >
             {item.icone}
             {item.rotulo}

@@ -15,7 +15,7 @@ export const CHAVE_TEMA = "gearos:tema";
 /** Cor da barra do navegador no celular, por tema. */
 const COR_DA_BARRA: Record<TemaResolvido, string> = {
   claro: CORES.fundo,
-  escuro: "#1a1a1a",
+  escuro: "#0f141b",
 };
 
 /**

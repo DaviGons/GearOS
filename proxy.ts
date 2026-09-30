@@ -12,7 +12,7 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Rotas de API (/api/checklists/*) já são protegidas pelas policies de
+  // Rotas de API (/api/os/*) já são protegidas pelas policies de
   // RLS no Postgres — o cliente Supabase de cada rota envia o token da
   // sessão junto com o pedido, e o banco recusa se não houver um usuário
   // autenticado válido. Não precisam do redirect de página (que devolve

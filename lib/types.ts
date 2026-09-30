@@ -1,3 +1,10 @@
+/**
+ * Nome da tabela das O.S. no banco. Vem da época em que o sistema era um
+ * checklist de entrada; trocar exige migração em produção junto com o deploy,
+ * então o nome antigo fica isolado aqui e o resto do código fala em O.S.
+ */
+export const TABELA_OS = "checklists";
+
 export type Status = "recebido" | "em_andamento" | "finalizado" | "entregue";
 
 export const STATUS_ORDER: Status[] = ["recebido", "em_andamento", "finalizado", "entregue"];
@@ -9,6 +16,14 @@ export const STATUS_LABEL: Record<Status, string> = {
   entregue: "Entregue",
 };
 
+/** A frase curta embaixo do nome de cada coluna do quadro. */
+export const STATUS_DICA: Record<Status, string> = {
+  recebido: "Chegou e aguarda o mecânico",
+  em_andamento: "Na mão do mecânico",
+  finalizado: "Pronto, esperando o cliente",
+  entregue: "Já saiu da oficina",
+};
+
 export type TipoCombustivel = "diesel" | "alcool" | "gasolina";
 
 export const TIPO_COMBUSTIVEL_LABEL: Record<TipoCombustivel, string> = {
@@ -17,7 +32,7 @@ export const TIPO_COMBUSTIVEL_LABEL: Record<TipoCombustivel, string> = {
   gasolina: "Gasolina",
 };
 
-export type Checklist = {
+export type OrdemDeServico = {
   id: number;
   criado_em: string;
   atualizado_em: string;
@@ -51,8 +66,8 @@ export type Checklist = {
  * uma vez: puxar `select("*")` traria `observacoes` e `avarias` inteiras de
  * todas elas só para desenhar nome, placa e data.
  */
-export type ChecklistResumo = Pick<
-  Checklist,
+export type OrdemDeServicoResumo = Pick<
+  OrdemDeServico,
   | "id"
   | "status"
   | "cliente_nome"
@@ -62,11 +77,11 @@ export type ChecklistResumo = Pick<
   | "criado_em"
 >;
 
-/** Colunas do ChecklistResumo, prontas para o `.select()` do Supabase. */
+/** Colunas do OrdemDeServicoResumo, prontas para o `.select()` do Supabase. */
 export const CAMPOS_RESUMO =
   "id,status,cliente_nome,veiculo_marca,veiculo_modelo,veiculo_placa,criado_em";
 
-export type ChecklistInput = {
+export type OrdemDeServicoInput = {
   atendente?: string;
 
   cliente_nome: string;

@@ -1,4 +1,4 @@
-import { Checklist } from "@/lib/types";
+import { OrdemDeServico } from "@/lib/types";
 
 /**
  * Teto de tamanho por campo de texto.
@@ -61,13 +61,13 @@ export function isValidCPF(value: string): boolean {
   return calcCheckDigit(9) === digits[9] && calcCheckDigit(10) === digits[10];
 }
 
-export function cadastroClienteCompleto(checklist: Checklist): boolean {
+export function cadastroClienteCompleto(os: OrdemDeServico): boolean {
   return Boolean(
-    checklist.cliente_nome?.trim() &&
-      checklist.cliente_cpf?.trim() &&
-      checklist.cliente_endereco?.trim() &&
-      checklist.cliente_cep?.trim() &&
-      checklist.cliente_numero?.trim() &&
-      checklist.cliente_telefone?.trim()
+    os.cliente_nome?.trim() &&
+      os.cliente_cpf?.trim() &&
+      os.cliente_endereco?.trim() &&
+      os.cliente_cep?.trim() &&
+      os.cliente_numero?.trim() &&
+      os.cliente_telefone?.trim()
   );
 }

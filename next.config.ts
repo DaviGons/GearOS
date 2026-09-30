@@ -34,6 +34,15 @@ const nextConfig: NextConfig = {
   async headers() {
     return [{ source: "/:path*", headers: CABECALHOS_DE_SEGURANCA }];
   },
+  // As telas moravam em /checklists/... até o sistema deixar de ser um
+  // checklist. Link salvo no celular do balcão ou mandado no WhatsApp continua
+  // chegando na O.S. certa.
+  async redirects() {
+    return [
+      { source: "/checklists/novo", destination: "/os/nova", permanent: true },
+      { source: "/checklists/:id", destination: "/os/:id", permanent: true },
+    ];
+  },
 };
 
 export default nextConfig;

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { TABELA_OS } from "@/lib/types";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createPortalToken, PORTAL_COOKIE_NAME, PORTAL_COOKIE_MAX_AGE } from "@/lib/portal-session";
 import { checkRateLimit, checkRateLimitChave } from "@/lib/rate-limit";
@@ -42,7 +43,7 @@ export async function POST(request: NextRequest) {
 
   const supabase = createAdminClient();
   const { data, error } = await supabase
-    .from("checklists")
+    .from(TABELA_OS)
     .select("id, cliente_telefone")
     .eq("veiculo_placa", placa)
     .order("id", { ascending: false })

@@ -14,7 +14,7 @@ export default function DeleteButton({ id }: { id: number }) {
     setDeleting(true);
     setError(null);
     try {
-      const res = await fetchComRetry(`/api/checklists/${id}`, { method: "DELETE" });
+      const res = await fetchComRetry(`/api/os/${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error();
       router.push("/");
       router.refresh();
@@ -27,22 +27,21 @@ export default function DeleteButton({ id }: { id: number }) {
 
   if (confirming) {
     return (
-      <div className="flex items-center gap-2">
-        {error && <span className="text-xs text-danger">{error}</span>}
-        <span className="text-xs text-muted">Excluir definitivamente?</span>
+      <div className="flex flex-wrap items-center justify-end gap-2">
+        <span className="text-sm text-muted">Apagar a O.S. e os anexos, sem volta?</span>
         <button
           type="button"
           onClick={handleDelete}
           disabled={deleting}
-          className="rounded-lg bg-danger px-3 py-2 text-sm font-medium text-danger-foreground hover:opacity-90 disabled:opacity-50"
+          className="rounded-xl bg-danger px-3.5 py-2 text-sm font-semibold text-danger-foreground hover:opacity-90 disabled:opacity-50"
         >
-          {deleting ? "Excluindo..." : "Confirmar"}
+          {deleting ? "Excluindo..." : "Excluir"}
         </button>
         <button
           type="button"
           onClick={() => setConfirming(false)}
           disabled={deleting}
-          className="rounded-lg border border-border bg-surface px-3 py-2 text-sm font-medium text-foreground hover:bg-surface-hover"
+          className="rounded-xl border border-border bg-surface px-3.5 py-2 text-sm font-medium text-foreground hover:bg-surface-hover"
         >
           Cancelar
         </button>
@@ -51,12 +50,19 @@ export default function DeleteButton({ id }: { id: number }) {
   }
 
   return (
-    <button
-      type="button"
-      onClick={() => setConfirming(true)}
-      className="rounded-lg border border-danger/30 bg-transparent px-4 py-2 text-sm font-semibold text-danger hover:bg-danger/10"
-    >
-      Excluir O.S.
-    </button>
+    <div className="flex items-center gap-2">
+      {error && (
+        <span role="alert" className="text-sm text-danger">
+          {error}
+        </span>
+      )}
+      <button
+        type="button"
+        onClick={() => setConfirming(true)}
+        className="rounded-xl px-3 py-2 text-sm font-medium text-danger hover:bg-danger/10"
+      >
+        Excluir O.S.
+      </button>
+    </div>
   );
 }

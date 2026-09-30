@@ -7,8 +7,8 @@ function sign(data: string): string {
   return crypto.createHmac("sha256", process.env.PORTAL_SESSION_SECRET!).update(data).digest("base64url");
 }
 
-export function createPortalToken(checklistId: number): string {
-  const payload = JSON.stringify({ id: checklistId, exp: Date.now() + PORTAL_COOKIE_MAX_AGE * 1000 });
+export function createPortalToken(osId: number): string {
+  const payload = JSON.stringify({ id: osId, exp: Date.now() + PORTAL_COOKIE_MAX_AGE * 1000 });
   const encoded = Buffer.from(payload).toString("base64url");
   return `${encoded}.${sign(encoded)}`;
 }

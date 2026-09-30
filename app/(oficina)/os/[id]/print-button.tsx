@@ -5,7 +5,7 @@
  *
  * Imprimir a O.S. deixou de fazer sentido no dia a dia da oficina, então o
  * botão saiu da tela — mas a impressão em si continua de pé: as classes
- * `print:` do checklist-editor e o bloco `@media print` do globals.css seguem
+ * `print:` do editor-da-os e o bloco `@media print` do globals.css seguem
  * lá, e este botão é só o gatilho. Quando existir orçamento, é daqui que sai.
  */
 export default function PrintButton() {

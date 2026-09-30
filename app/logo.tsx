@@ -1,4 +1,4 @@
-// Marca do GearOS: uma porca sextavada em traço único, com o check em vermelho
+// Marca do GearOS: uma porca sextavada em traço único, com o check em verde
 // no vazio dela. Desenhada em vetor (e não como imagem) de propósito: fica
 // nítida em qualquer tamanho, acompanha as cores do tema e não custa request.
 // A geometria vive em lib/brand.ts, compartilhada com o favicon e os PNGs.
@@ -24,7 +24,7 @@ export function GearMark({
       <path
         d={CHECK}
         fill="none"
-        stroke="var(--accent)"
+        stroke="var(--marca)"
         strokeWidth={espessura}
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -51,7 +51,7 @@ export function Logo({
   return (
     <span className={`inline-flex items-center gap-2 ${className}`}>
       <GearMark className={mark} />
-      <span className={`font-semibold tracking-tight text-foreground ${texto}`}>GearOS</span>
+      <span className={`font-display font-semibold tracking-tight text-foreground ${texto}`}>GearOS</span>
     </span>
   );
 }

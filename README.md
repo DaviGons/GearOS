@@ -1,6 +1,6 @@
 # GearOS
 
-Sistema de checklist de entrada / ordem de serviço para oficinas mecânicas. Next.js + Supabase (Postgres + Auth).
+Sistema de ordens de serviço para oficinas mecânicas, do recebimento do veículo à entrega. Next.js + Supabase (Postgres + Auth).
 
 ## Rodando localmente
 
