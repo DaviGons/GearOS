@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { OrdemDeServico, TABELA_OS } from "@/lib/types";
@@ -14,9 +15,14 @@ export default async function PaginaDaOS({
   params: Promise<{ id: string }>;
   searchParams: Promise<{ fotos_pendentes?: string }>;
 }) {
-  const [{ id }, { fotos_pendentes }] = await Promise.all([params, searchParams]);
+  const [{ id }, { fotos_pendentes }, cabecalhos] = await Promise.all([
+    params,
+    searchParams,
+    headers(),
+  ]);
   // vem da tela de receber veículo quando parte das fotos não subiu
   const fotosPendentes = Math.max(0, Math.floor(Number(fotos_pendentes) || 0));
+  const linkDoPortal = enderecoDoPortal(cabecalhos);
   const supabase = await createClient();
 
   const { data: row } = await supabase
@@ -58,7 +64,24 @@ export default async function PaginaDaOS({
         <DeleteButton id={os.id} />
       </div>
 
-      <EditorDaOS os={os} anexos={anexos} fotosPendentes={fotosPendentes} />
+      <EditorDaOS
+        os={os}
+        anexos={anexos}
+        fotosPendentes={fotosPendentes}
+        linkDoPortal={linkDoPortal}
+      />
     </main>
   );
+}
+
+/**
+ * Endereço do portal do cliente, para ir no aviso de WhatsApp. Sai do próprio
+ * pedido, e não de uma variável fixa: assim o link aponta para onde o app está
+ * de fato — localhost, preview da Vercel ou o domínio de produção.
+ */
+function enderecoDoPortal(cabecalhos: Headers): string {
+  const host = cabecalhos.get("x-forwarded-host") ?? cabecalhos.get("host") ?? "localhost:3000";
+  const protocolo =
+    cabecalhos.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https");
+  return `${protocolo}://${host}/login?portal=1`;
 }

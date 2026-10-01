@@ -8,6 +8,7 @@ import { fetchComRetry } from "@/lib/fetch-retry";
 import { Logo } from "../../../logo";
 import { Placa } from "../../../placa";
 import Anexos, { type Anexo } from "./anexos";
+import AvisoWhatsApp from "./aviso-whatsapp";
 
 type ClienteVeiculoFields = {
   cliente_nome: string;
@@ -63,10 +64,13 @@ export default function EditorDaOS({
   os,
   anexos,
   fotosPendentes,
+  linkDoPortal,
 }: {
   os: OrdemDeServico;
   anexos: Anexo[];
   fotosPendentes: number;
+  /** endereço do portal do cliente, para ir no aviso de WhatsApp */
+  linkDoPortal: string;
 }) {
   const router = useRouter();
 
@@ -187,6 +191,13 @@ export default function EditorDaOS({
               );
             })}
           </div>
+
+          <AvisoWhatsApp
+            status={status}
+            os={os}
+            linkDoPortal={linkDoPortal}
+            telefoneAlterado={fields.cliente_telefone !== (os.cliente_telefone ?? "")}
+          />
         </div>
 
         <span
